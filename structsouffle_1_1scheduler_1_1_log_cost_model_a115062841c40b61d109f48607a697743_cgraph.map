@@ -1,0 +1,9 @@
+<map id="souffle::scheduler::LogCostModel::applyTo" name="souffle::scheduler::LogCostModel::applyTo">
+<area shape="rect" id="node2" href="$classsouffle_1_1scheduler_1_1_binding_state.html#a08a70b5ce328302134aba49f592158d9" title="souffle::scheduler\l::BindingState::bind" alt="" coords="260,5,396,46"/>
+<area shape="rect" id="node3" href="$structsouffle_1_1scheduler_1_1_atom.html#a5514ceeff5d1be257ea1ef84459a24ef" title="Obtains the list of (abstracted) arguments exposed by this atom. " alt="" coords="253,70,403,111"/>
+<area shape="rect" id="node4" href="$structsouffle_1_1scheduler_1_1_atom.html#ad88c809c4c5178e97087de4175704e83" title="Obtains the arity of the targeted relation. " alt="" coords="265,135,391,177"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1scheduler_1_1_simple_computational_cost_atom.html#a1ccb613796fd7d5d0e5481b97aee9825" title="souffle::scheduler\l::SimpleComputationalCostAtom\l::getCardinality" alt="" coords="221,200,435,256"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1scheduler_1_1_state.html#a6267b2482a67d49dc932919b7f92bb0b" title="souffle::scheduler\l::State::getCost" alt="" coords="265,279,391,321"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1scheduler_1_1_binding_state.html#a86a3e0dd96e21ccfd18d70600052ffb7" title="souffle::scheduler\l::BindingState::isBound" alt="" coords="249,345,407,386"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1scheduler_1_1_state.html#ab7d565a42079f07f840ca52c7fc0bf65" title="souffle::scheduler\l::State::setCost" alt="" coords="265,410,391,451"/>
+</map>

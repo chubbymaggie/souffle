@@ -1,0 +1,13 @@
+<map id="souffle::DebugReporter::transform" name="souffle::DebugReporter::transform">
+<area shape="rect" id="node2" href="$classsouffle_1_1_debug_report.html#a4e6fe0a6d9854ce570d008772daa9aba" title="souffle::DebugReport\l::addSection" alt="" coords="432,5,579,46"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_debug_reporter.html#ae9fa7c82c5d862b563f4dac70a1aa71b" title="Generate a debug report section for the current state of the given translation unit with the given id..." alt="" coords="211,201,368,242"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_ast_translation_unit.html#a2c05c0d93e34800167034b1aa423c4a0" title="get debug report " alt="" coords="417,397,594,438"/>
+<area shape="rect" id="node12" href="$namespacesouffle.html#a1c65551944c7ecf6f44ec851b49bdbb0" title="souffle::now" alt="" coords="243,317,336,344"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ast_translation_unit.html#a7a1598acb91192e90026763b3b968653" title="get analysis: analysis is generated on the fly if not present " alt="" coords="417,70,594,111"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_debug_reporter.html#a0203b9b72ed2087b1b7604cdc75ecdbb" title="Generate a debug report section for code (preserving formatting), with the given id and title..." alt="" coords="427,135,584,177"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_debug_reporter.html#a2363e9e1493efdbfc10c0746caf58e93" title="Generated a debug report section for a dot graph specification, with the given id and title..." alt="" coords="427,201,584,242"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1_ast_translation_unit.html#a85862a5fcfecdf63c7367926cdedde23" title="get the AST program " alt="" coords="417,266,594,307"/>
+<area shape="rect" id="node10" href="$classsouffle_1_1_ast_program.html#a41b95b3179fc737c70c7b957220146c4" title="Output the program to a given output stream. " alt="" coords="436,331,575,373"/>
+<area shape="rect" id="node8" href="$namespacesouffle.html#a9b5d35fc5fbcf6970adb86505b9263da" title="souffle::toBase64" alt="" coords="643,208,767,235"/>
+<area shape="rect" id="node11" href="$namespacesouffle.html#abe4e3f19879707216a2758b03f4e2deb" title="Creates an object to be forwarded to some output stream for printing sequences of elements interspers..." alt="" coords="661,339,750,365"/>
+</map>

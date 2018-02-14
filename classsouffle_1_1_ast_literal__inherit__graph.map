@@ -1,0 +1,6 @@
+<map id="souffle::AstLiteral" name="souffle::AstLiteral">
+<area shape="rect" id="node3" href="$classsouffle_1_1_ast_atom.html" title="Subclass of Literal that represents the use of a relation either in the head or in the body of a Clau..." alt="" coords="5,456,133,768"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ast_constraint.html" title="Subclass of Literal that represents a binary constraint e.g., x = y. " alt="" coords="157,449,305,775"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_ast_negation.html" title="Subclass of Literal that represents a negated atom, * e.g., !parent(x,y). " alt="" coords="331,515,471,709"/>
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_node.html" title="Abstract class for syntactic elements in a Datalog program. " alt="" coords="168,5,296,229"/>
+</map>

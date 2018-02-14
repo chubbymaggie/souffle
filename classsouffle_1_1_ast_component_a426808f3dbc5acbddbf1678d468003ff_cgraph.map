@@ -1,0 +1,7 @@
+<map id="souffle::AstComponent::addIODirectiveChain" name="souffle::AstComponent::addIODirectiveChain">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_component.html#adf88f26a1663d66ec3008955c3f1e774" title="Requests an independent, deep copy of this node. " alt="" coords="211,103,367,145"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ast_component.html#a7bd2092ef8417b561efe562a8fa41a38" title="souffle::AstComponent\l::setComponentType" alt="" coords="417,5,573,46"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ast_component.html#a0e597738f5b17070aeac16920f60c83a" title="souffle::AstComponent\l::getComponentType" alt="" coords="417,70,573,111"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_ast_component.html#a884770b0f1d663db8376b19c16ed35ea" title="souffle::AstComponent\l::setBaseComponents" alt="" coords="417,135,573,177"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_ast_component.html#afe7d13f9ed4d34f9882cea81d0a6d3e9" title="souffle::AstComponent\l::getBaseComponents" alt="" coords="417,201,573,242"/>
+</map>

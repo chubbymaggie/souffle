@@ -1,0 +1,4 @@
+<map id="souffle::scheduler::ComputeCostAtom" name="souffle::scheduler::ComputeCostAtom">
+<area shape="rect" id="node2" href="$structsouffle_1_1scheduler_1_1_atom.html" title="The base class for atoms to model the input of scheduling problems. " alt="" coords="143,171,291,395"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_relation_stats.html" title="A summary of statistical properties of a ram relation. " alt="" coords="316,163,497,402"/>
+</map>

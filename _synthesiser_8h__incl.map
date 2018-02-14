@@ -1,0 +1,22 @@
+<map id="Synthesiser.h" name="Synthesiser.h">
+<area shape="rect" id="node2" href="$_ram_program_8h.html" title="RamProgram.h" alt="" coords="2123,155,2233,181"/>
+<area shape="rect" id="node3" href="$_ram_statement_8h.html" title="RamStatement.h" alt="" coords="2165,229,2285,256"/>
+<area shape="rect" id="node33" href="$_ram_relation_8h.html" title="RamRelation.h" alt="" coords="1597,379,1707,405"/>
+<area shape="rect" id="node40" href="$_symbol_table_8h.html" title="SymbolTable.h" alt="" coords="1040,453,1149,480"/>
+<area shape="rect" id="node46" href="$_ram_translation_unit_8h.html" title="RamTranslationUnit.h" alt="" coords="1725,80,1873,107"/>
+<area shape="rect" id="node4" href="$_ast_clause_8h.html" title="AstClause.h" alt="" coords="2178,453,2272,480"/>
+<area shape="rect" id="node5" href="$_util_8h.html" title="Util.h" alt="" coords="972,528,1025,555"/>
+<area shape="rect" id="node31" href="$_ram_node_8h.html" title="RamNode.h" alt="" coords="3093,379,3184,405"/>
+<area shape="rect" id="node32" href="$_ram_operation_8h.html" title="RamOperation.h" alt="" coords="2465,304,2581,331"/>
+<area shape="rect" id="node45" href="$_ram_value_8h.html" title="RamValue.h" alt="" coords="1487,304,1581,331"/>
+<area shape="rect" id="node6" href="$_macro_8h.html" title="Macro.h" alt="" coords="267,603,336,629"/>
+<area shape="rect" id="node34" href="$_i_o_directives_8h.html" title="IODirectives.h" alt="" coords="1201,528,1308,555"/>
+<area shape="rect" id="node35" href="$_parallel_utils_8h.html" title="ParallelUtils.h" alt="" coords="658,528,760,555"/>
+<area shape="rect" id="node36" href="$_ram_types_8h.html" title="RamTypes.h" alt="" coords="2517,453,2613,480"/>
+<area shape="rect" id="node39" href="$_symbol_mask_8h.html" title="SymbolMask.h" alt="" coords="2772,528,2881,555"/>
+<area shape="rect" id="node42" href="$_table_8h.html" title="Table.h" alt="" coords="2661,453,2725,480"/>
+<area shape="rect" id="node47" href="$_debug_report_8h.html" title="DebugReport.h" alt="" coords="1753,453,1863,480"/>
+<area shape="rect" id="node49" href="$_error_report_8h.html" title="ErrorReport.h" alt="" coords="2087,528,2187,555"/>
+<area shape="rect" id="node50" href="$_ram_analysis_8h.html" title="RamAnalysis.h" alt="" coords="559,229,669,256"/>
+<area shape="rect" id="node48" href="$_ast_transformer_8h.html" title="AstTransformer.h" alt="" coords="1687,528,1809,555"/>
+</map>

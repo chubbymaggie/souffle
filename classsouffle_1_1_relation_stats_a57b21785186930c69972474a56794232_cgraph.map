@@ -1,0 +1,7 @@
+<map id="souffle::RelationStats::extractFrom" name="souffle::RelationStats::extractFrom">
+<area shape="rect" id="node2" href="$classsouffle_1_1_interpreter_relation.html#ac38a7ef1e0d01a99d5d96c7c0479f92e" title="get iterator begin of relation " alt="" coords="203,57,379,98"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_interpreter_relation.html#ae016a864942bb8693682380ac7276bbd" title="get iterator begin of relation " alt="" coords="427,5,632,32"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_interpreter_relation.html#a48005d1ab2f3cfb5606e3beb6148d9d2" title="Get arity of relation. " alt="" coords="441,122,617,163"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_interpreter_relation.html#a362e05eb89153c5c16d617cb0c6778b3" title="Gets the number of contained tuples. " alt="" coords="203,174,379,215"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_interpreter_relation.html#a5de54d32362b1ee2b22318e055833e22" title="Check whether relation is empty. " alt="" coords="441,57,617,98"/>
+</map>

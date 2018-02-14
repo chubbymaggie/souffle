@@ -1,0 +1,5 @@
+<map id="souffle::Logger::~Logger" name="souffle::Logger::~Logger">
+<area shape="rect" id="node2" href="$structsouffle_1_1_lock.html#a0fe2edd3ac13a141851fa021716bae04" title="souffle::Lock::acquire" alt="" coords="220,5,367,32"/>
+<area shape="rect" id="node3" href="$namespacesouffle.html#a1f3d2bbfbcd58c76463920d43a29b3d0" title="Obtains a reference to the lock synchronizing output operations. " alt="" coords="216,56,371,83"/>
+<area shape="rect" id="node4" href="$namespacesouffle.html#a1c65551944c7ecf6f44ec851b49bdbb0" title="souffle::now" alt="" coords="247,107,340,133"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="souffle::Interpreter::invoke" name="souffle::Interpreter::invoke">
+<area shape="rect" id="node2" href="$classsouffle_1_1_global.html#a2dcb257b0f98d0b882862427cc965640" title="souffle::Global::config" alt="" coords="195,5,344,32"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ram_program.html#a700bc589281fd3f2478b074c3134d450" title="Get main program. " alt="" coords="196,57,343,98"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_signal_handler.html#ab7eed040c4ebc493e77f60046e820b6c" title="souffle::SignalHandler\l::instance" alt="" coords="606,141,757,182"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_signal_handler.html#a24026472ab9eeaecaafd4bd20b7af11f" title="souffle::SignalHandler\l::reset" alt="" coords="194,174,345,215"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_signal_handler.html#a36fa4f2a7027a4d5f93acc7b848f9f41" title="souffle::SignalHandler::set" alt="" coords="181,240,357,267"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_signal_handler.html#a13132ac75d313dd744f3f2c3ae2a9e96" title="Signal handler for various types of signals. " alt="" coords="406,219,557,261"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_signal_handler.html#a6e10bba6b2d1e2924fabf94d74fe1df1" title="souffle::SignalHandler\l::error" alt="" coords="606,219,757,261"/>
+</map>

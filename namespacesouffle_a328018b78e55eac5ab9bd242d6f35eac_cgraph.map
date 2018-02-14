@@ -1,0 +1,10 @@
+<map id="souffle::createMagicRelation" name="souffle::createMagicRelation">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_relation.html#abc452f3678fbd70929638ae5c779cca6" title="Add a new used type to this relation. " alt="" coords="261,5,398,46"/>
+<area shape="rect" id="node3" href="$namespacesouffle.html#a3c36e5eb0fc8e43102b85fba043aa422" title="souffle::extractAdornment" alt="" coords="243,71,415,97"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_ast_relation.html#a855b01ad5e4a0871ef6c6f6bb1e95d13" title="Return the arity of this relation. " alt="" coords="261,122,398,163"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_ast_relation.html#adf9ccc5b4924918ea95bd64898196b66" title="Obtains a list of the contained attributes. " alt="" coords="261,187,398,229"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1_ast_relation.html#ac2902ef3d54670976da8bcaf4a9f4b45" title="Set name for this relation. " alt="" coords="261,253,398,294"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ast_relation_identifier.html#acc40ffc92083f65c1a47442a0e80a0ec" title="souffle::AstRelationIdentifier\l::getNames" alt="" coords="464,34,651,75"/>
+<area shape="rect" id="node5" href="$namespacesouffle.html#a620dc7687473311acaa752a76b5c9470" title="souffle::getEndpoint" alt="" coords="488,100,627,127"/>
+<area shape="rect" id="node8" href="$namespacesouffle.html#ad62d4e824a9d74c7462da546a21780fe" title="A utility function enabling the creation of a vector of pointers. " alt="" coords="490,195,625,221"/>
+</map>

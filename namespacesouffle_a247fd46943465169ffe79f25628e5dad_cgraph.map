@@ -1,0 +1,10 @@
+<map id="souffle::getGroundedTerms" name="souffle::getGroundedTerms">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_atom.html#a11ba399d723b5f1135a35e47e51e1bad" title="Provides access to the list of arguments of this atom. " alt="" coords="235,5,445,32"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ast_record_init.html#ae516fe38512e96c666014acce207b983" title="souffle::AstRecordInit\l::getArguments" alt="" coords="265,57,415,98"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_ast_negation.html#a0737c379dac1c350accecb1e2301698c" title="Returns the nested atom as the referenced atom. " alt="" coords="269,122,411,163"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_ast_clause.html#ae9a1e5dd0a7c9781e23a7d9ececd6ae5" title="Return the atom that represents the head of the clause. " alt="" coords="275,187,405,229"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_ast_constraint.html#ae25c3601f3786f8ab4eec9837ce02b3a" title="Return LHS argument. " alt="" coords="265,253,415,294"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_ast_constraint.html#ae6843e561217d3c041b5ab58588a6465" title="Return binary operator. " alt="" coords="265,318,415,359"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1_ast_constraint.html#af8d3f1b1bca4fcbbb3d15febe5b52041" title="Return RHS argument. " alt="" coords="265,383,415,425"/>
+<area shape="rect" id="node3" href="$namespacesouffle.html#ad62d4e824a9d74c7462da546a21780fe" title="A utility function enabling the creation of a vector of pointers. " alt="" coords="494,35,629,61"/>
+</map>

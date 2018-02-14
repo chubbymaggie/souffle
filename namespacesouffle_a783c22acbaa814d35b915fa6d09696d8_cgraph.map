@@ -1,0 +1,22 @@
+<map id="souffle::explain" name="souffle::explain">
+<area shape="rect" id="node2" href="$classsouffle_1_1_explain.html#aabd40f949d36ae7cd2782f62088e7c11" title="souffle::Explain::explain" alt="" coords="166,260,327,287"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_explain.html#ae3c25129416040424fa123f70566c8ae" title="souffle::Explain::initialise\lWindow" alt="" coords="385,5,551,46"/>
+<area shape="rect" id="node5" href="$namespacesouffle.html#a7f32090909fb88cd5af742382c7ddd2c" title="utility function to split a string " alt="" coords="421,71,515,97"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_explain.html#a0959bd00e5dac64e88158ddab67d45a9" title="souffle::Explain::printStr" alt="" coords="387,121,549,148"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_explain.html#a2b162a9221551183972e5eaa781a218b" title="souffle::Explain::parseTuple" alt="" coords="376,172,560,199"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1_explain_provenance.html#a340ed47f995b5172ab9f346babc4bfd7" title="souffle::ExplainProvenance\l::explain" alt="" coords="377,223,559,265"/>
+<area shape="rect" id="node10" href="$classsouffle_1_1_explain.html#a04c6d4e51a17c6850f37036df137ccd7" title="souffle::Explain::printTree" alt="" coords="383,289,553,316"/>
+<area shape="rect" id="node13" href="$classsouffle_1_1_explain_provenance.html#a64e3165acb1b13e24e5f1974d8c29cf2" title="souffle::ExplainProvenance\l::explainSubproof" alt="" coords="377,341,559,382"/>
+<area shape="rect" id="node14" href="$classsouffle_1_1_explain_provenance.html#aadcec6224703d8b59f7743ce97bf7f03" title="souffle::ExplainProvenance\l::getRule" alt="" coords="377,406,559,447"/>
+<area shape="rect" id="node15" href="$classsouffle_1_1_explain_provenance.html#ad23118b17b9a9bc388cb313f996a94d5" title="souffle::ExplainProvenance\l::getRelationOutput" alt="" coords="377,471,559,513"/>
+<area shape="rect" id="node21" href="$classsouffle_1_1_explain.html#a0b102860f7c8ce0062f38e64f25ff1e9" title="souffle::Explain::scrollTree" alt="" coords="379,537,557,564"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_explain.html#a3fca32021a311309cd914e5f845139cb" title="souffle::Explain::makeQuery\lWindow" alt="" coords="608,5,795,46"/>
+<area shape="rect" id="node6" href="$namespacesouffle.html#a0fff2be077dd5d1105f3a6e718339f2f" title="A utility printing a given value multiple times. " alt="" coords="651,71,752,97"/>
+<area shape="rect" id="node11" href="$classsouffle_1_1_screen_buffer.html#a077af583c179141a81a7a9f3c06b092c" title="souffle::ScreenBuffer\l::getString" alt="" coords="629,282,774,323"/>
+<area shape="rect" id="node12" href="$classsouffle_1_1_screen_buffer.html#a2e5e6bf07dbecb217df56d63851a5587" title="souffle::ScreenBuffer\l::print" alt="" coords="843,282,989,323"/>
+<area shape="rect" id="node16" href="$classsouffle_1_1_souffle_program.html#a8d60868a2e93de1ccc7b09d140542d0d" title="souffle::SouffleProgram\l::getRelation" alt="" coords="622,377,781,418"/>
+<area shape="rect" id="node17" href="$classsouffle_1_1_symbol_mask.html#a8f5dd51f70faaf206bc3bedad2a4e8c7" title="souffle::SymbolMask\l::setSymbol" alt="" coords="629,442,774,483"/>
+<area shape="rect" id="node19" href="$classsouffle_1_1_i_o_directives.html#abef5a3f9b0d3393b17f2493c6769df63" title="souffle::IODirectives\l::setRelationName" alt="" coords="630,507,773,549"/>
+<area shape="rect" id="node20" href="$classsouffle_1_1_explain_provenance.html#a117ef6b6c90008a386e0e6b3800d0ce8" title="souffle::ExplainProvenance\l::printRelationOutput" alt="" coords="611,573,792,614"/>
+<area shape="rect" id="node18" href="$classsouffle_1_1_symbol_mask.html#a73093d37902fa812dc5db128ab9ed85e" title="souffle::SymbolMask\l::getArity" alt="" coords="843,442,989,483"/>
+</map>

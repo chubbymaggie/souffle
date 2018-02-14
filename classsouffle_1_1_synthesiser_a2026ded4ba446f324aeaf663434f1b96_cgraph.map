@@ -1,0 +1,18 @@
+<map id="souffle::Synthesiser::generateCode" name="souffle::Synthesiser::generateCode">
+<area shape="rect" id="node2" href="$classsouffle_1_1_global.html#a2dcb257b0f98d0b882862427cc965640" title="souffle::Global::config" alt="" coords="229,5,379,32"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ram_relation.html#a4b8c28fa5818f930e0d3149cd4a50b8b" title="souffle::RamRelation\l::getArity" alt="" coords="231,57,377,98"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ram_load.html#af2175486fa791b796ea9edf998d06b9f" title="souffle::RamLoad::getIODirectives" alt="" coords="192,123,416,149"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_ram_program.html#a700bc589281fd3f2478b074c3134d450" title="Get main program. " alt="" coords="231,174,377,215"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_ram_translation_unit.html#ac0266f20993c0557549c24e8b7542005" title="souffle::RamTranslationUnit\l::getP" alt="" coords="211,239,397,281"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_ram_relation_statement.html#a93110734f0f992a2f9b1a1d492cef3ad" title="Get RAM relation. " alt="" coords="201,305,407,346"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_ram_program.html#a9770e26c7c87a0aed4f2fda096cc4d08" title="Get subroutines. " alt="" coords="231,370,377,411"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1_ram_relation.html#ad59bb94cc5398ba1380d725ea3838ee8" title="souffle::RamRelation\l::getSymbolMask" alt="" coords="231,435,377,477"/>
+<area shape="rect" id="node10" href="$classsouffle_1_1_ram_translation_unit.html#a575f705235d66d41cb889c984632a528" title="souffle::RamTranslationUnit\l::getSymbolTable" alt="" coords="211,501,397,542"/>
+<area shape="rect" id="node11" href="$classsouffle_1_1_symbol_table.html#af165ed2505af5d61ad4b85253ae83f64" title="Find a symbol in the table by its index, note that this gives an error if the index is out of bounds..." alt="" coords="231,566,377,607"/>
+<area shape="rect" id="node13" href="$classsouffle_1_1_symbol_table.html#a216fda4c1927c69d7a8e71e862eb2dad" title="souffle::SymbolTable\l::size" alt="" coords="469,625,614,666"/>
+<area shape="rect" id="node14" href="$namespacesouffle.html#a7f93cdf21f1a24b593da6691dc892828" title="A generic factory for constraints of the form. " alt="" coords="259,683,349,709"/>
+<area shape="rect" id="node15" href="$namespacesouffle.html#a4e134334ce89f6ebc4075e1089b1f80d" title="A utility function visiting all nodes within the ast rooted by the given node recursively in a depth&#45;..." alt="" coords="227,733,381,760"/>
+<area shape="rect" id="node12" href="$structsouffle_1_1_lock.html#a0fe2edd3ac13a141851fa021716bae04" title="souffle::Lock::acquire" alt="" coords="468,573,615,600"/>
+<area shape="rect" id="node16" href="$namespacesouffle.html#ae3213abfc9e18e34bb08056ec91f7b86" title="A utility function visiting all nodes within the ast rooted by the given node recursively in a depth&#45;..." alt="" coords="464,726,619,767"/>
+<area shape="rect" id="node17" href="$classsouffle_1_1_ast_node.html#a3726392849b2a07142ba13bbd5fb16d2" title="Obtain a list of all embedded AST child nodes. " alt="" coords="667,726,843,767"/>
+</map>

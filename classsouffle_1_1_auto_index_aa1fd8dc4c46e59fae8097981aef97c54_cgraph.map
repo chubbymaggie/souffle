@@ -1,0 +1,5 @@
+<map id="souffle::AutoIndex::getChainsFromMatching" name="souffle::AutoIndex::getChainsFromMatching">
+<area shape="rect" id="node2" href="$classsouffle_1_1_auto_index.html#ac8b08918bf4a7c6ad9b76760f1b9bb2c" title="given an unmapped node from set A we follow it from set B until it cannot be matched from B if not ma..." alt="" coords="236,5,364,46"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_auto_index.html#a9d1bee50ff14f464cb3f9c4c0e0727ec" title="get all nodes which are unmated from A&#45;&gt; B " alt="" coords="227,70,373,111"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_auto_index.html#a9a6c7339a2c22dec43de3ee7b87a0cae" title="convert from a representation of A verticies to B verticies " alt="" coords="422,12,578,39"/>
+</map>

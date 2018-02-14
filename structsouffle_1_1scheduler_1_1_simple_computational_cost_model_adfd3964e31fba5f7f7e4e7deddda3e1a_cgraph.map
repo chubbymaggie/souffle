@@ -1,0 +1,10 @@
+<map id="souffle::scheduler::SimpleComputationalCostModel::applyTo" name="souffle::scheduler::SimpleComputationalCostModel::applyTo">
+<area shape="rect" id="node2" href="$classsouffle_1_1scheduler_1_1_simple_computational_cost_state.html#a05b0250d15489f845b01f25a43073627" title="souffle::scheduler\l::SimpleComputationalCostState::bind" alt="" coords="272,5,517,46"/>
+<area shape="rect" id="node3" href="$structsouffle_1_1scheduler_1_1_atom.html#a5514ceeff5d1be257ea1ef84459a24ef" title="Obtains the list of (abstracted) arguments exposed by this atom. " alt="" coords="319,70,470,111"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1scheduler_1_1_simple_computational_cost_atom.html#a1ccb613796fd7d5d0e5481b97aee9825" title="souffle::scheduler\l::SimpleComputationalCostAtom\l::getCardinality" alt="" coords="288,135,501,191"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1scheduler_1_1_simple_computational_cost_state.html#ad09cfe38a44167c893d6801c09785a85" title="souffle::scheduler\l::SimpleComputationalCostState\l::getInnermostIterations" alt="" coords="288,215,501,271"/>
+<area shape="rect" id="node6" href="$structsouffle_1_1scheduler_1_1_atom.html#a123cc33731db961643b122f44a8bc2b1" title="Obtains the number of constant arguments. " alt="" coords="307,294,482,335"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1scheduler_1_1_state.html#af5aaa3d82e595fdd1b498ab66824387b" title="souffle::scheduler\l::State::incCost" alt="" coords="332,359,457,401"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1scheduler_1_1_simple_computational_cost_state.html#a371ae289370feda97cb5a45d1f91b79a" title="souffle::scheduler\l::SimpleComputationalCostState\l::isBound" alt="" coords="288,424,501,480"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1scheduler_1_1_simple_computational_cost_state.html#a39b7829c5ab59af96e166e950bfe30e1" title="souffle::scheduler\l::SimpleComputationalCostState\l::setInnermostIterations" alt="" coords="288,504,501,560"/>
+</map>

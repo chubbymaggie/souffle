@@ -1,0 +1,4 @@
+<map id="souffle::scheduler::SimpleComputationalCostAtom::print" name="souffle::scheduler::SimpleComputationalCostAtom::print">
+<area shape="rect" id="node2" href="$structsouffle_1_1scheduler_1_1_atom.html#a5514ceeff5d1be257ea1ef84459a24ef" title="Obtains the list of (abstracted) arguments exposed by this atom. " alt="" coords="267,5,418,46"/>
+<area shape="rect" id="node3" href="$structsouffle_1_1scheduler_1_1_atom.html#a651239209e517d7ffd1191cf73bb7419" title="Obtains the identifier of this atom. " alt="" coords="280,70,405,111"/>
+</map>

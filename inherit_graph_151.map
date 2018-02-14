@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$structsouffle_1_1ram_1_1detail_1_1_relation_base.html" title="souffle::ram::detail\l::RelationBase\&lt; arity,\l HashRelation\&lt; arity,\l Indices...\&gt; \&gt;" alt="" coords="5,5,155,75"/>
+<area shape="rect" id="node2" href="$classsouffle_1_1ram_1_1detail_1_1_hash_relation.html" title="The relation type utilized to implement relations only utilizing a hash based data structure..." alt="" coords="203,12,354,68"/>
+</map>

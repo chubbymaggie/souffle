@@ -1,0 +1,5 @@
+<map id="souffle::AstAttribute::clone" name="souffle::AstAttribute::clone">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_attribute.html#abd37458ec0ef1ba3888fc90f56d84cd5" title="souffle::AstAttribute\l::AstAttribute" alt="" coords="216,5,355,46"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ast_node.html#a2ad833e42f55e6c61bdd12d6c5c2d482" title="Return source location of the AstNode. " alt="" coords="192,71,379,97"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ast_node.html#a87a7a3fa2ee37482923d81e072b29bee" title="Set source location for the AstNode. " alt="" coords="192,121,379,148"/>
+</map>

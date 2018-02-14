@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$structsouffle_1_1scheduler_1_1cost__model.html" title="souffle::scheduler\l::cost_model\&lt; ComputeCostAtom,\l ComputeCostState \&gt;" alt="" coords="6,4,231,60"/>
+<area shape="rect" id="node2" href="$structsouffle_1_1scheduler_1_1_compute_cost_model.html" title="The compute cost model tries to estimate the costs for computing a plan by maintaining estimates for ..." alt="" coords="280,11,427,53"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="souffle::createNewRelation" name="souffle::createNewRelation">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_relation.html#abc452f3678fbd70929638ae5c779cca6" title="Add a new used type to this relation. " alt="" coords="259,5,397,46"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ast_relation.html#adf9ccc5b4924918ea95bd64898196b66" title="Obtains a list of the contained attributes. " alt="" coords="259,70,397,111"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_ast_node.html#a2ad833e42f55e6c61bdd12d6c5c2d482" title="Return source location of the AstNode. " alt="" coords="235,136,421,163"/>
+<area shape="rect" id="node6" href="$namespacesouffle.html#a816a525106d63dbdd220ee8ecc238f50" title="souffle::nextSrcLoc" alt="" coords="261,187,395,213"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_ast_relation.html#ac2902ef3d54670976da8bcaf4a9f4b45" title="Set name for this relation. " alt="" coords="259,238,397,279"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_ast_node.html#a87a7a3fa2ee37482923d81e072b29bee" title="Set source location for the AstNode. " alt="" coords="235,304,421,331"/>
+<area shape="rect" id="node9" href="$namespacesouffle.html#aee69f1913bc5a4f49deeca2b10c8323b" title="souffle::updateQualifier" alt="" coords="250,355,406,381"/>
+<area shape="rect" id="node4" href="$namespacesouffle.html#ad62d4e824a9d74c7462da546a21780fe" title="A utility function enabling the creation of a vector of pointers. " alt="" coords="471,77,606,104"/>
+<area shape="rect" id="node10" href="$classsouffle_1_1_ast_relation.html#a15a48bcd5bcf6eebbc4bb4ef16e52685" title="Return qualifier associated with this relation. " alt="" coords="470,282,607,323"/>
+<area shape="rect" id="node11" href="$classsouffle_1_1_ast_relation.html#a96ff8bd588002b8182393d95258c9d66" title="Check whether relation is a equivalence relation. " alt="" coords="470,347,607,389"/>
+<area shape="rect" id="node12" href="$classsouffle_1_1_ast_relation.html#a9527d30091d612f497c769ca3e87548f" title="Set qualifier associated with this relation. " alt="" coords="470,413,607,454"/>
+</map>

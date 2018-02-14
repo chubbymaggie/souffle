@@ -1,0 +1,9 @@
+<map id="souffle::SCCGraph::printDot" name="souffle::SCCGraph::printDot">
+<area shape="rect" id="node2" href="$classsouffle_1_1_global.html#a2dcb257b0f98d0b882862427cc965640" title="souffle::Global::config" alt="" coords="203,5,352,32"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ast_relation.html#a6ae505289ecfc8e40c9f4e47689f5ee8" title="Return the name of the relation. " alt="" coords="209,57,346,98"/>
+<area shape="rect" id="node4" href="$namespacesouffle.html#abe4e3f19879707216a2758b03f4e2deb" title="Creates an object to be forwarded to some output stream for printing sequences of elements interspers..." alt="" coords="233,123,322,149"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_s_c_c_graph.html#a708a2458d0762084ebd2e3ce21621433" title="Get the relations for a given scc. " alt="" coords="207,174,348,215"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_s_c_c_graph.html#aa0692a8452674518de36c521240ac5cb" title="Get the scc of a given relation. " alt="" coords="196,240,359,267"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_s_c_c_graph.html#afbb3289ff8042e80be2e7e1be4f8fbbf" title="Return the number of strongly connected components in the SCC graph. " alt="" coords="195,291,360,317"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_s_c_c_graph.html#a0683f2f1fa6691a68d188b2149f7aae2" title="Get all successor SCCs of a specified scc. " alt="" coords="207,342,348,383"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="souffle::ResolveAliasesTransformer::transform" name="souffle::ResolveAliasesTransformer::transform">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_translation_unit.html#a85862a5fcfecdf63c7367926cdedde23" title="get the AST program " alt="" coords="313,169,490,210"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_resolve_aliases_transformer.html#a8c9522f00da11f42b8be72e5fe79c826" title="Converts the given clause into a version without variables aliasing grounded variables. " alt="" coords="286,234,517,275"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ast_clause.html#aef9cb574a067db73c83fd9c9f63d297f" title="Creates a clone if this AST sub&#45;structure. " alt="" coords="577,70,708,111"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_ast_constraint.html#ae25c3601f3786f8ab4eec9837ce02b3a" title="Return LHS argument. " alt="" coords="568,135,717,177"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1_ast_variable.html#a298c753e0d5f0ca5c07536ca304d9086" title="souffle::AstVariable\l::getName" alt="" coords="575,201,711,242"/>
+<area shape="rect" id="node10" href="$classsouffle_1_1_ast_constraint.html#ae6843e561217d3c041b5ab58588a6465" title="Return binary operator. " alt="" coords="568,266,717,307"/>
+<area shape="rect" id="node11" href="$classsouffle_1_1_ast_constraint.html#af8d3f1b1bca4fcbbb3d15febe5b52041" title="Return RHS argument. " alt="" coords="568,331,717,373"/>
+<area shape="rect" id="node12" href="$namespacesouffle.html#a4e134334ce89f6ebc4075e1089b1f80d" title="A utility function visiting all nodes within the ast rooted by the given node recursively in a depth&#45;..." alt="" coords="565,397,720,424"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_ast_clause.html#a253d3796df50375b98447daff50200f9" title="Construct an empty clause with empty list of literals and its head set to NULL. " alt="" coords="796,5,927,46"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_ast_clause.html#af03a18e982fbce1bb3866c18c5da192e" title="Obtains the execution plan associated to this clause or null if there is none. " alt="" coords="795,70,927,111"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_ast_node.html#a2ad833e42f55e6c61bdd12d6c5c2d482" title="Return source location of the AstNode. " alt="" coords="768,136,955,163"/>
+<area shape="rect" id="node13" href="$namespacesouffle.html#ae3213abfc9e18e34bb08056ec91f7b86" title="A utility function visiting all nodes within the ast rooted by the given node recursively in a depth&#45;..." alt="" coords="784,390,939,431"/>
+<area shape="rect" id="node14" href="$classsouffle_1_1_ast_node.html#a3726392849b2a07142ba13bbd5fb16d2" title="Obtain a list of all embedded AST child nodes. " alt="" coords="1003,390,1179,431"/>
+</map>

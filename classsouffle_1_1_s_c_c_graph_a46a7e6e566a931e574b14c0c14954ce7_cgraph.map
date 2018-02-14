@@ -1,0 +1,7 @@
+<map id="souffle::SCCGraph::getIns" name="souffle::SCCGraph::getIns">
+<area shape="rect" id="node2" href="$classsouffle_1_1_s_c_c_graph.html#a0e8a6c9c002ac40ccbe326b67133f876" title="Get all relations in a predecessor SCC that have a successor relation in the given SCC..." alt="" coords="195,61,336,102"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_s_c_c_graph.html#ad3307bef6e316c2359e88ff651cfe9cc" title="Get all input relations in the given SCC. " alt="" coords="195,126,336,167"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_precedence_graph.html#aaaa7bc2a66bb69fceff4b8e699c87eda" title="souffle::PrecedenceGraph\l::graph" alt="" coords="384,5,557,46"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_s_c_c_graph.html#a708a2458d0762084ebd2e3ce21621433" title="Get the relations for a given scc. " alt="" coords="400,123,541,165"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_s_c_c_graph.html#aa0692a8452674518de36c521240ac5cb" title="Get the scc of a given relation. " alt="" coords="389,71,552,97"/>
+</map>

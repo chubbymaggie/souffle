@@ -1,0 +1,7 @@
+<map id="souffle::scheduler::ComputeCostAtom::print" name="souffle::scheduler::ComputeCostAtom::print">
+<area shape="rect" id="node2" href="$structsouffle_1_1scheduler_1_1_atom.html#a5514ceeff5d1be257ea1ef84459a24ef" title="Obtains the list of (abstracted) arguments exposed by this atom. " alt="" coords="270,5,421,46"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1scheduler_1_1_compute_cost_atom.html#a5da57d891f03d0e351ffdd3cb17e5fa2" title="souffle::scheduler\l::ComputeCostAtom::getCardinality" alt="" coords="230,70,461,111"/>
+<area shape="rect" id="node5" href="$structsouffle_1_1scheduler_1_1_atom.html#a651239209e517d7ffd1191cf73bb7419" title="Obtains the identifier of this atom. " alt="" coords="283,135,408,177"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1scheduler_1_1_compute_cost_atom.html#a2369abd49a36650f34818003188f4e1a" title="souffle::scheduler\l::ComputeCostAtom::getRelation\lStats" alt="" coords="237,200,453,256"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_relation_stats.html#a7b943483778d7a16a966cf2558b21037" title="souffle::RelationStats\l::getCardinality" alt="" coords="510,70,658,111"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="souffle::AstConstraint::clone" name="souffle::AstConstraint::clone">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_constraint.html#a2e499963c8068e55317ef8e1ff51ff18" title="souffle::AstConstraint\l::AstConstraint" alt="" coords="221,5,371,46"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ast_node.html#a2ad833e42f55e6c61bdd12d6c5c2d482" title="Return source location of the AstNode. " alt="" coords="203,71,389,97"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ast_node.html#a87a7a3fa2ee37482923d81e072b29bee" title="Set source location for the AstNode. " alt="" coords="203,121,389,148"/>
+</map>

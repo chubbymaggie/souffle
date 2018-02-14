@@ -1,0 +1,5 @@
+<map id="souffle::scheduler::State" name="souffle::scheduler::State">
+<area shape="rect" id="node2" href="$classsouffle_1_1scheduler_1_1_binding_state.html" title="A model tracing the list of bound variables and estimating the cost of joins by assuming a fixed sele..." alt="" coords="5,255,131,377"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1scheduler_1_1_compute_cost_state.html" title="The state associated to the computational cost model maintaining an estimate to the multiplicity of b..." alt="" coords="155,219,327,413"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1scheduler_1_1_simple_computational_cost_state.html" title="The state associated to the simple computational cost model maintaining a set of bound variables and ..." alt="" coords="351,226,576,406"/>
+</map>

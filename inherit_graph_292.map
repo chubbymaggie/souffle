@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classsouffle_1_1scheduler_1_1_state.html" title="The base class for the state associated to a problem after executing a (partial) plan. " alt="" coords="5,70,131,111"/>
+<area shape="rect" id="node2" href="$classsouffle_1_1scheduler_1_1_binding_state.html" title="A model tracing the list of bound variables and estimating the cost of joins by assuming a fixed sele..." alt="" coords="223,5,348,46"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1scheduler_1_1_compute_cost_state.html" title="The state associated to the computational cost model maintaining an estimate to the multiplicity of b..." alt="" coords="214,70,357,111"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1scheduler_1_1_simple_computational_cost_state.html" title="The state associated to the simple computational cost model maintaining a set of bound variables and ..." alt="" coords="179,135,392,177"/>
+</map>

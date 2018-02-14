@@ -1,0 +1,5 @@
+<map id="souffle::AstUnnamedVariable::clone" name="souffle::AstUnnamedVariable::clone">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_unnamed_variable.html#a8d5f33c3d4fe2a01c91173a8b2b09dfb" title="souffle::AstUnnamedVariable\l::AstUnnamedVariable" alt="" coords="245,5,437,46"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ast_node.html#a2ad833e42f55e6c61bdd12d6c5c2d482" title="Return source location of the AstNode. " alt="" coords="248,71,435,97"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ast_node.html#a87a7a3fa2ee37482923d81e072b29bee" title="Set source location for the AstNode. " alt="" coords="248,121,435,148"/>
+</map>

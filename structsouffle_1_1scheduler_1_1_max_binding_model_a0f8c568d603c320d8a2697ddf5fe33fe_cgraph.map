@@ -1,0 +1,7 @@
+<map id="souffle::scheduler::MaxBindingModel::applyTo" name="souffle::scheduler::MaxBindingModel::applyTo">
+<area shape="rect" id="node2" href="$classsouffle_1_1scheduler_1_1_binding_state.html#a08a70b5ce328302134aba49f592158d9" title="souffle::scheduler\l::BindingState::bind" alt="" coords="252,5,388,46"/>
+<area shape="rect" id="node3" href="$structsouffle_1_1scheduler_1_1_atom.html#a75c13f8411f0a867f2908c55f35019cf" title="Obtains a list of the variable arguments. " alt="" coords="249,70,391,111"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1scheduler_1_1_state.html#af5aaa3d82e595fdd1b498ab66824387b" title="souffle::scheduler\l::State::incCost" alt="" coords="257,135,383,177"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1scheduler_1_1_binding_state.html#a86a3e0dd96e21ccfd18d70600052ffb7" title="souffle::scheduler\l::BindingState::isBound" alt="" coords="241,201,399,242"/>
+<area shape="rect" id="node4" href="$namespacesouffle.html#a6f53082a60ed5593022bde81dc619ac9" title="souffle::contains" alt="" coords="449,77,567,104"/>
+</map>

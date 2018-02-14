@@ -1,0 +1,13 @@
+<map id="souffle::scheduler::ComputeCostModel::applyTo" name="souffle::scheduler::ComputeCostModel::applyTo">
+<area shape="rect" id="node2" href="$classsouffle_1_1scheduler_1_1_compute_cost_state.html#ac24bc852a65fb3d46fc4bf0644ab68ae" title="souffle::scheduler\l::ComputeCostState::bind" alt="" coords="229,5,403,46"/>
+<area shape="rect" id="node3" href="$structsouffle_1_1scheduler_1_1_atom.html#a5514ceeff5d1be257ea1ef84459a24ef" title="Obtains the list of (abstracted) arguments exposed by this atom. " alt="" coords="241,70,391,111"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_relation_stats.html#a7b943483778d7a16a966cf2558b21037" title="souffle::RelationStats\l::getCardinality" alt="" coords="242,135,390,177"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_relation_stats.html#a128f91c7e64706383ecfc297f92c418a" title="souffle::RelationStats\l::getEstimatedCardinality" alt="" coords="231,201,401,242"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1scheduler_1_1_compute_cost_state.html#a3a1ba1839247a3fd8f42f63957e89b99" title="souffle::scheduler\l::ComputeCostState::\lgetInnermostIterations" alt="" coords="240,265,392,321"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1scheduler_1_1_compute_cost_atom.html#a2369abd49a36650f34818003188f4e1a" title="souffle::scheduler\l::ComputeCostAtom::getRelation\lStats" alt="" coords="208,345,424,401"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1scheduler_1_1_state.html#af5aaa3d82e595fdd1b498ab66824387b" title="souffle::scheduler\l::State::incCost" alt="" coords="253,425,379,466"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1scheduler_1_1_compute_cost_state.html#aa15bfc51c69b136ba22b42577ad7579c" title="souffle::scheduler\l::ComputeCostState::\lisBound" alt="" coords="241,489,391,545"/>
+<area shape="rect" id="node10" href="$classsouffle_1_1scheduler_1_1_argument.html#a6b288dab09973ab52ce3299867e93665" title="Determines whether this is a constant. " alt="" coords="237,569,395,610"/>
+<area shape="rect" id="node11" href="$classsouffle_1_1scheduler_1_1_argument.html#aa3b0107df54853916dfcc882bffc2c44" title="Determines whether this is a variable. " alt="" coords="241,634,391,675"/>
+<area shape="rect" id="node12" href="$classsouffle_1_1scheduler_1_1_compute_cost_state.html#a49f0cec50e794e34b992d5583970d32c" title="souffle::scheduler\l::ComputeCostState::\lsetInnermostIterations" alt="" coords="240,699,392,755"/>
+</map>

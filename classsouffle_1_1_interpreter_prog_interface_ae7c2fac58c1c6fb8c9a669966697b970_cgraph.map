@@ -1,0 +1,12 @@
+<map id="souffle::InterpreterProgInterface::InterpreterProgInterface" name="souffle::InterpreterProgInterface::InterpreterProgInterface">
+<area shape="rect" id="node2" href="$classsouffle_1_1_souffle_program.html#a76d04bb16509820a91b24867c608bc10" title="souffle::SouffleProgram\l::addRelation" alt="" coords="294,5,453,46"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ram_relation.html#acd6760acf6b69232fe1c138428ef803a" title="souffle::RamRelation\l::getArg" alt="" coords="301,70,446,111"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ram_relation.html#a1cb65694ecf51e073122caf9560d620c" title="souffle::RamRelation\l::getArgTypeQualifier" alt="" coords="301,135,446,177"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_ram_relation.html#a4b8c28fa5818f930e0d3149cd4a50b8b" title="souffle::RamRelation\l::getArity" alt="" coords="301,201,446,242"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_ram_program.html#a700bc589281fd3f2478b074c3134d450" title="Get main program. " alt="" coords="300,266,447,307"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_ram_relation.html#aff204de1a828d72e6e74337be4885ddd" title="souffle::RamRelation\l::getName" alt="" coords="301,331,446,373"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_interpreter_environment.html#a5fd4804331c0bfe1cdfa0a6c1065a69a" title="Returns the relation map. " alt="" coords="273,397,474,438"/>
+<area shape="rect" id="node9" href="$namespacesouffle.html#a4e134334ce89f6ebc4075e1089b1f80d" title="A utility function visiting all nodes within the ast rooted by the given node recursively in a depth&#45;..." alt="" coords="296,463,451,489"/>
+<area shape="rect" id="node10" href="$namespacesouffle.html#ae3213abfc9e18e34bb08056ec91f7b86" title="A utility function visiting all nodes within the ast rooted by the given node recursively in a depth&#45;..." alt="" coords="523,455,677,497"/>
+<area shape="rect" id="node11" href="$classsouffle_1_1_ast_node.html#a3726392849b2a07142ba13bbd5fb16d2" title="Obtain a list of all embedded AST child nodes. " alt="" coords="725,455,901,497"/>
+</map>

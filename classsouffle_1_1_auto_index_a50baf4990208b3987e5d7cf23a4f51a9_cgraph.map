@@ -1,0 +1,16 @@
+<map id="souffle::AutoIndex::solve" name="souffle::AutoIndex::solve">
+<area shape="rect" id="node2" href="$classsouffle_1_1_max_matching.html#ac3dd726cde8bb080da933aa75604bf20" title="add an edge to the bi&#45;partite graph " alt="" coords="195,5,341,46"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_max_matching.html#a4e8937c87ba3e7292fd0848ecb4c8cc3" title="calculates max matching " alt="" coords="195,70,341,111"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_auto_index.html#a1b7362348fd2f328939b5ff96c08f9f0" title="count the number of bits in key " alt="" coords="204,135,332,177"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1_auto_index.html#aa1fd8dc4c46e59fae8097981aef97c54" title="get all chains from the matching " alt="" coords="182,253,354,294"/>
+<area shape="rect" id="node11" href="$classsouffle_1_1_auto_index.html#a9a6c7339a2c22dec43de3ee7b87a0cae" title="convert from a representation of A verticies to B verticies " alt="" coords="598,231,754,257"/>
+<area shape="rect" id="node13" href="$classsouffle_1_1_auto_index.html#a7cfafccb765fcffbe89716f8eb700b5e" title="insert an index based on the delta " alt="" coords="204,318,332,359"/>
+<area shape="rect" id="node14" href="$classsouffle_1_1_auto_index.html#a6b73775a56642190d28ac3c5c166f708" title="determine if key a is a strict subset of key b " alt="" coords="204,383,332,425"/>
+<area shape="rect" id="node15" href="$classsouffle_1_1_auto_index.html#a208994f288a6364af2198846dd89fcfb" title="maps search columns to an lexicographical order (labeled by a number) " alt="" coords="187,449,349,476"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_max_matching.html#a8ddaeeb5af558ffc94bb54d7b3bc1734" title="breadth first search " alt="" coords="403,70,549,111"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_max_matching.html#a0a86567f140cab81c0a76b763552402f" title="returns match of v " alt="" coords="603,70,749,111"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_max_matching.html#a799ace56dd22769e9b7114fa7928e4c0" title="depth first search " alt="" coords="403,135,549,177"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_max_matching.html#a20efdbbbf7d3492c3c721ee43e70a1c6" title="returns distance of v " alt="" coords="603,135,749,177"/>
+<area shape="rect" id="node10" href="$classsouffle_1_1_auto_index.html#ac8b08918bf4a7c6ad9b76760f1b9bb2c" title="given an unmapped node from set A we follow it from set B until it cannot be matched from B if not ma..." alt="" coords="412,253,540,294"/>
+<area shape="rect" id="node12" href="$classsouffle_1_1_auto_index.html#a9d1bee50ff14f464cb3f9c4c0e0727ec" title="get all nodes which are unmated from A&#45;&gt; B " alt="" coords="403,318,549,359"/>
+</map>

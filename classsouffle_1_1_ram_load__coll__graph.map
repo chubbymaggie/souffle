@@ -1,0 +1,6 @@
+<map id="souffle::RamLoad" name="souffle::RamLoad">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ram_relation_statement.html" title="RAM Statements with a single relation. " alt="" coords="132,653,337,789"/>
+<area shape="rect" id="node3" href="$classsouffle_1_1_ram_statement.html" title="Abstract class for RAM statements. " alt="" coords="5,409,163,530"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ram_node.html" title="RamNode is a superclass for all RAM IR classes. " alt="" coords="20,147,148,357"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_i_o_directives.html" title="{souffle::IODirectives\n||+ get()\l+ getFileName()\l+ getIOType()\l+ getRelationName()\l+ has()\l+ IODirectives()\l+ IODirectives()\l+ isEmpty()\l+ operator!=()\l+ operator==()\land 6 more...\l&#45; escape()\l&#45; escape()\l}" alt="" coords="362,595,504,848"/>
+</map>

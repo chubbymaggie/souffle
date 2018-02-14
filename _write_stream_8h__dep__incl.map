@@ -1,0 +1,12 @@
+<map id="WriteStream.h" name="WriteStream.h">
+<area shape="rect" id="node2" href="$_i_o_system_8h.html" title="IOSystem.h" alt="" coords="337,155,428,181"/>
+<area shape="rect" id="node7" href="$_write_stream_c_s_v_8h.html" title="WriteStreamCSV.h" alt="" coords="457,80,591,107"/>
+<area shape="rect" id="node11" href="$_write_stream_s_q_lite_8h.html" title="WriteStreamSQLite.h" alt="" coords="616,80,763,107"/>
+<area shape="rect" id="node3" href="$_compiled_ram_relation_8h.html" title="CompiledRamRelation.h" alt="" coords="5,229,168,256"/>
+<area shape="rect" id="node5" href="$_interpreter_8cpp.html" title="Interpreter.cpp" alt="" coords="193,229,300,256"/>
+<area shape="rect" id="node6" href="$_synthesiser_8cpp.html" title="Synthesiser.cpp" alt="" coords="325,229,440,256"/>
+<area shape="rect" id="node4" href="$_compiled_souffle_8h.html" title="CompiledSouffle.h" alt="" coords="22,304,151,331"/>
+<area shape="rect" id="node8" href="$_explain_provenance_8h.html" title="ExplainProvenance.h" alt="" coords="465,155,609,181"/>
+<area shape="rect" id="node10" href="$_explain_8h.html" title="Explain.h" alt="" coords="574,304,649,331"/>
+<area shape="rect" id="node9" href="$_explain_provenance_s_l_d_8h.html" title="ExplainProvenanceSLD.h" alt="" coords="465,229,636,256"/>
+</map>

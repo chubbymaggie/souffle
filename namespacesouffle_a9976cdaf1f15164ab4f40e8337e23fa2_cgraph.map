@@ -1,0 +1,10 @@
+<map id="souffle::printSizeStore" name="souffle::printSizeStore">
+<area shape="rect" id="node2" href="$classsouffle_1_1_ast_relation.html#a6ab4f4409da3c84af64b4a08d26ccd21" title="souffle::AstRelation\l::addIODirectives" alt="" coords="211,5,349,46"/>
+<area shape="rect" id="node3" href="$namespacesouffle.html#a532e17c4416fc5873367482f2e0623d9" title="souffle::appendStmt" alt="" coords="211,71,349,97"/>
+<area shape="rect" id="node5" href="$classsouffle_1_1_global.html#a2dcb257b0f98d0b882862427cc965640" title="souffle::Global::config" alt="" coords="205,121,355,148"/>
+<area shape="rect" id="node6" href="$classsouffle_1_1_ast_relation.html#a855b01ad5e4a0871ef6c6f6bb1e95d13" title="Return the arity of this relation. " alt="" coords="211,173,349,214"/>
+<area shape="rect" id="node7" href="$classsouffle_1_1_ast_relation.html#a6ae505289ecfc8e40c9f4e47689f5ee8" title="Return the name of the relation. " alt="" coords="211,238,349,279"/>
+<area shape="rect" id="node8" href="$classsouffle_1_1_ast_relation.html#ae8a38221aa94f0df83f602fd1d1d0eb8" title="Check whether relation is an output relation. " alt="" coords="211,303,349,345"/>
+<area shape="rect" id="node9" href="$classsouffle_1_1_ast_relation.html#a5de0a60f392fd55905d648894f62f4ab" title="Check whether relation is an input relation. " alt="" coords="211,369,349,410"/>
+<area shape="rect" id="node4" href="$classsouffle_1_1_ram_sequence.html#a0b409325b6311a7e7a19b1d84dae990f" title="Add new statement to the end of ordered list. " alt="" coords="403,71,587,97"/>
+</map>
