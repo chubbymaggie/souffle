@@ -22,3 +22,7 @@ do
 done
 # show contents of deployment
 ls deploy/*
+
+#Create tarball for brew
+make dist
+

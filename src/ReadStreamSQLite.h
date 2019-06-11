@@ -16,7 +16,6 @@
 
 #include "RamTypes.h"
 #include "ReadStream.h"
-#include "SymbolMask.h"
 #include "SymbolTable.h"
 
 #include <fstream>
@@ -32,7 +31,7 @@ namespace souffle {
 class ReadStreamSQLite : public ReadStream {
 public:
     ReadStreamSQLite(const std::string& dbFilename, const std::string& relationName,
-            const SymbolMask& symbolMask, SymbolTable& symbolTable, const bool provenance)
+            const std::vector<bool>& symbolMask, SymbolTable& symbolTable, const bool provenance)
             : ReadStream(symbolMask, symbolTable, provenance), dbFilename(dbFilename),
               relationName(relationName) {
         openDB();
@@ -57,23 +56,23 @@ protected:
             return nullptr;
         }
 
-        std::unique_ptr<RamDomain[]> tuple = std::make_unique<RamDomain[]>(symbolMask.getArity());
+        std::unique_ptr<RamDomain[]> tuple = std::make_unique<RamDomain[]>(arity + (isProvenance ? 2 : 0));
 
         uint32_t column;
-        for (column = 0; column < symbolMask.getArity(); column++) {
+        for (column = 0; column < arity; column++) {
             std::string element(reinterpret_cast<const char*>(sqlite3_column_text(selectStatement, column)));
 
-            if (element == "") {
+            if (element.empty()) {
                 element = "n/a";
             }
-            if (symbolMask.isSymbol(column)) {
-                tuple[column] = symbolTable.unsafeLookup(element.c_str());
+            if (symbolMask.at(column)) {
+                tuple[column] = symbolTable.unsafeLookup(element);
             } else {
                 try {
 #if RAM_DOMAIN_SIZE == 64
-                    tuple[column] = std::stoll(element.c_str());
+                    tuple[column] = std::stoll(element);
 #else
-                    tuple[column] = std::stoi(element.c_str());
+                    tuple[column] = std::stoi(element);
 #endif
                 } catch (...) {
                     std::stringstream errorMessage;
@@ -81,11 +80,6 @@ protected:
                     throw std::invalid_argument(errorMessage.str());
                 }
             }
-        }
-
-        if (isProvenance) {
-            tuple[symbolMask.getArity() - 2] = 0;
-            tuple[symbolMask.getArity() - 1] = 0;
         }
 
         return tuple;
@@ -107,7 +101,7 @@ protected:
         }
     }
 
-    void throwError(std::string message) {
+    void throwError(const std::string& message) {
         std::stringstream error;
         error << message << sqlite3_errmsg(db) << "\n";
         throw std::invalid_argument(error.str());
@@ -154,18 +148,17 @@ protected:
     }
     const std::string& dbFilename;
     const std::string& relationName;
-    sqlite3_stmt* selectStatement;
-    sqlite3* db;
+    sqlite3_stmt* selectStatement = nullptr;
+    sqlite3* db = nullptr;
 };
 
 class ReadSQLiteFactory : public ReadStreamFactory {
 public:
-    std::unique_ptr<ReadStream> getReader(const SymbolMask& symbolMask, SymbolTable& symbolTable,
+    std::unique_ptr<ReadStream> getReader(const std::vector<bool>& symbolMask, SymbolTable& symbolTable,
             const IODirectives& ioDirectives, const bool provenance) override {
         std::string dbName = ioDirectives.get("dbname");
         std::string relationName = ioDirectives.getRelationName();
-        return std::unique_ptr<ReadStreamSQLite>(
-                new ReadStreamSQLite(dbName, relationName, symbolMask, symbolTable, provenance));
+        return std::make_unique<ReadStreamSQLite>(dbName, relationName, symbolMask, symbolTable, provenance);
     }
     const std::string& getName() const override {
         static const std::string name = "sqlite";

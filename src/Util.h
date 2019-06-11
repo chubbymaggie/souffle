@@ -16,9 +16,10 @@
 
 #pragma once
 
-#include "Macro.h"
+#include "RamTypes.h"
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -31,18 +32,31 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
-#include <assert.h>
-#include <ctype.h>
-#include <errno.h>
+#include <cassert>
+#include <cctype>
+#include <cerrno>
+#include <climits>
+#include <cstdarg>
+#include <cstdlib>
+#include <cstring>
 #include <libgen.h>
-#include <limits.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+/**
+ * Converts a string to a number
+ */
+
+#if RAM_DOMAIN_SIZE == 64
+#define stord(a) std::stoll(a)
+#elif RAM_DOMAIN_SIZE == 32
+#define stord(a) std::stoi(a)
+#else
+#error RAM Domain is neither 32bit nor 64bit
+#endif
 
 #if __cplusplus == 201103L
 // make_unique implementation for C++11
@@ -50,17 +64,17 @@
 namespace std {
 template <class T>
 struct _Unique_if {
-    typedef unique_ptr<T> _Single_object;
+    using _Single_object = unique_ptr<T>;
 };
 
 template <class T>
 struct _Unique_if<T[]> {
-    typedef unique_ptr<T[]> _Unknown_bound;
+    using _Unknown_bound = unique_ptr<T[]>;
 };
 
 template <class T, size_t N>
 struct _Unique_if<T[N]> {
-    typedef void _Known_bound;
+    using _Known_bound = void;
 };
 
 template <class T, class... Args>
@@ -70,7 +84,7 @@ typename _Unique_if<T>::_Single_object make_unique(Args&&... args) {
 
 template <class T>
 typename _Unique_if<T>::_Unknown_bound make_unique(size_t n) {
-    typedef typename remove_extent<T>::type U;
+    using U = typename remove_extent<T>::type;
     return unique_ptr<T>(new U[n]());
 }
 
@@ -148,6 +162,18 @@ std::vector<T*> toPtrVector(const std::vector<std::unique_ptr<T>>& v) {
  * A utility function enabling the creation of a vector of pointers.
  */
 template <typename T>
+std::vector<const T*> toConstPtrVector(const std::vector<std::unique_ptr<T>>& v) {
+    std::vector<const T*> res;
+    for (auto& e : v) {
+        res.push_back(e.get());
+    }
+    return res;
+}
+
+/**
+ * A utility function enabling the creation of a vector of pointers.
+ */
+template <typename T>
 std::vector<T*> toPtrVector(const std::vector<std::shared_ptr<T>>& v) {
     std::vector<T*> res;
     for (auto& e : v) {
@@ -161,11 +187,10 @@ std::vector<T*> toPtrVector(const std::vector<std::shared_ptr<T>>& v) {
  */
 template <typename X, typename Y>
 void movePtrVector(std::vector<std::unique_ptr<X>>& source, std::vector<std::unique_ptr<Y>>& destination) {
-    while (!source.empty()) {
-        auto it = source.begin();
-        destination.push_back(std::move(std::make_unique<Y>(std::move(*it))));
-        source.erase(it);
+    for (auto& cur : source) {
+        destination.emplace_back(cur.release());
     }
+    source.clear();
 }
 
 /**
@@ -226,7 +251,7 @@ struct range {
     Iter a, b;
 
     // a constructor accepting a lower and upper boundary
-    range(const Iter& a, const Iter& b) : a(a), b(b) {}
+    range(Iter a, Iter b) : a(std::move(a)), b(std::move(b)) {}
 
     // default copy / move and assignment support
     range(const range&) = default;
@@ -252,6 +277,37 @@ struct range {
     // emptiness check
     bool empty() const {
         return a == b;
+    }
+
+    // splits up this range into the given number of partitions
+    std::vector<range> partition(int np = 100) {
+        // obtain the size
+        int n = 0;
+        for (auto i = a; i != b; ++i) n++;
+
+        // split it up
+        auto s = n / np;
+        auto r = n % np;
+        std::vector<range> res;
+        res.reserve(np);
+        auto cur = a;
+        auto last = cur;
+        int i = 0;
+        int p = 0;
+        while (cur != b) {
+            ++cur;
+            i++;
+            if (i >= (s + (p < r ? 1 : 0))) {
+                res.push_back({last, cur});
+                last = cur;
+                p++;
+                i = 0;
+            }
+        }
+        if (cur != last) {
+            res.push_back({last, cur});
+        }
+        return res;
     }
 };
 
@@ -479,7 +535,7 @@ namespace detail {
 /**
  * A auxiliary class to be returned by the join function aggregating the information
  * required to print a list of elements as well as the implementation of the printing
- * itsefl.
+ * itself.
  */
 template <typename Iter, typename Printer>
 class joined_sequence {
@@ -497,8 +553,8 @@ class joined_sequence {
 
 public:
     /** A constructor setting up all fields of this class */
-    joined_sequence(const Iter& a, const Iter& b, const std::string& sep, const Printer& p)
-            : begin(a), end(b), sep(sep), p(p) {}
+    joined_sequence(const Iter& a, const Iter& b, std::string sep, Printer p)
+            : begin(a), end(b), sep(std::move(sep)), p(std::move(p)) {}
 
     /** The actual print method */
     friend std::ostream& operator<<(std::ostream& out, const joined_sequence& s) {
@@ -764,6 +820,19 @@ inline bool endsWith(const std::string& value, const std::string& ending) {
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+/**
+ * Splits a string given a delimiter
+ */
+inline std::vector<std::string> splitString(const std::string& str, char delimiter) {
+    std::vector<std::string> parts;
+    std::stringstream strstr(str);
+    std::string token;
+    while (std::getline(strstr, token, delimiter)) {
+        parts.push_back(token);
+    }
+    return parts;
+}
+
 // -------------------------------------------------------------------------------
 //                              Functional Utils
 // -------------------------------------------------------------------------------
@@ -791,25 +860,25 @@ struct lambda_traits_helper;
 
 template <typename R>
 struct lambda_traits_helper<R()> {
-    typedef R result_type;
+    using result_type = R;
 };
 
 template <typename R, typename A0>
 struct lambda_traits_helper<R(A0)> {
-    typedef R result_type;
-    typedef A0 arg0_type;
+    using result_type = R;
+    using arg0_type = A0;
 };
 
 template <typename R, typename A0, typename A1>
 struct lambda_traits_helper<R(A0, A1)> {
-    typedef R result_type;
-    typedef A0 arg0_type;
-    typedef A1 arg1_type;
+    using result_type = R;
+    using arg0_type = A0;
+    using arg1_type = A1;
 };
 
 template <typename R, typename... Args>
 struct lambda_traits_helper<R(Args...)> {
-    typedef R result_type;
+    using result_type = R;
 };
 
 template <typename R, typename C, typename... Args>
@@ -838,7 +907,7 @@ struct lambda_traits : public detail::lambda_traits_helper<decltype(&Lambda::ope
  */
 template <typename Class, typename R, typename... Args>
 struct member_fun {
-    typedef R (Class::*fun_type)(Args...);
+    using fun_type = R (Class::*)(Args...);
     Class& obj;
     fun_type fun;
     R operator()(Args... args) const {
@@ -905,7 +974,8 @@ bool none_of(const Container& c, UnaryPredicate p) {
 // -------------------------------------------------------------------------------
 
 // a type def for a time point
-typedef std::chrono::high_resolution_clock::time_point time_point;
+using time_point = std::chrono::high_resolution_clock::time_point;
+using std::chrono::microseconds;
 
 // a shortcut for taking the current time
 inline time_point now() {
@@ -913,8 +983,8 @@ inline time_point now() {
 }
 
 // a shortcut for obtaining the time difference in milliseconds
-inline long duration_in_ms(const time_point& start, const time_point& end) {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+inline long duration_in_us(const time_point& start, const time_point& end) {
+    return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 }
 
 // a shortcut for obtaining the time difference in nanoseconds
@@ -930,9 +1000,9 @@ inline long duration_in_ns(const time_point& start, const time_point& end) {
  *  Check whether a file exists in the file system
  */
 inline bool existFile(const std::string& name) {
-    struct stat buffer;
+    struct stat buffer = {};
     if (stat(name.c_str(), &buffer) == 0) {
-        if ((buffer.st_mode & S_IFREG) != 0) {
+        if ((buffer.st_mode & S_IFMT) != 0) {
             return true;
         }
     }
@@ -943,7 +1013,7 @@ inline bool existFile(const std::string& name) {
  *  Check whether a directory exists in the file system
  */
 inline bool existDir(const std::string& name) {
-    struct stat buffer;
+    struct stat buffer = {};
     if (stat(name.c_str(), &buffer) == 0) {
         if ((buffer.st_mode & S_IFDIR) != 0) {
             return true;
@@ -965,15 +1035,19 @@ inline bool isExecutable(const std::string& name) {
 inline std::string which(const std::string& name) {
     char buf[PATH_MAX];
     if (::realpath(name.c_str(), buf) && isExecutable(buf)) {
-        return std::string(buf);
+        return buf;
     }
-    std::string syspath = ::getenv("PATH");
-    std::stringstream sstr(syspath);
+    const char* syspath = ::getenv("PATH");
+    if (syspath == nullptr) {
+        return "";
+    }
+    std::stringstream sstr;
+    sstr << syspath;
     std::string sub;
     while (std::getline(sstr, sub, ':')) {
         std::string path = sub + "/" + name;
         if (isExecutable(path) && realpath(path.c_str(), buf)) {
-            return std::string(buf);
+            return buf;
         }
     }
     return "";
@@ -1066,7 +1140,7 @@ inline std::string baseName(const std::string& filename) {
  * File name, with extension removed.
  */
 inline std::string simpleName(const std::string& path) {
-    std::string name = path;
+    std::string name = baseName(path);
     const size_t lastDot = name.find_last_of('.');
     // file has no extension
     if (lastDot == std::string::npos) return name;
@@ -1153,13 +1227,13 @@ class shared_mutex {
     std::mutex mut_;
     std::condition_variable gate1_;
     std::condition_variable gate2_;
-    unsigned state_;
+    unsigned state_ = 0;
 
     static const unsigned write_entered_ = 1U << (sizeof(unsigned) * CHAR_BIT - 1);
     static const unsigned n_readers_ = ~write_entered_;
 
 public:
-    shared_mutex() : state_(0) {}
+    shared_mutex() = default;
 
     // Exclusive ownership
     void lock() {
@@ -1243,6 +1317,207 @@ inline bool isTransactionProfilingEnabled() {
 }
 
 // -------------------------------------------------------------------------------
+//                              Hint / Cache
+// -------------------------------------------------------------------------------
+
+/**
+ * An Least-Recently-Used cache for arbitrary element types. Elements can be signaled
+ * to be accessed and iterated through in their LRU order.
+ */
+template <typename T, unsigned size = 1>
+class LRUCache {
+    // the list of pointers maintained
+    std::array<T, size> entries;
+
+    // pointer to predecessor / successor in the entries list
+    std::array<std::size_t, size> priv;  // < predecessor of element i
+    std::array<std::size_t, size> post;  // < successor of element i
+
+    std::size_t first{0};        // < index of the first element
+    std::size_t last{size - 1};  // < index of the last element
+
+public:
+    // creates a new, empty cache
+    LRUCache(const T& val = T()) {
+        for (unsigned i = 0; i < size; i++) {
+            entries[i] = val;
+            priv[i] = i - 1;
+            post[i] = i + 1;
+        }
+        priv[first] = last;
+        post[last] = first;
+    }
+
+    // clears the content of this cache
+    void clear(const T& val = T()) {
+        for (auto& cur : entries) {
+            cur = val;
+        }
+    }
+
+    // registers an access to the given element
+    void access(const T& val) {
+        // test whether it is contained
+        for (std::size_t i = 0; i < size; i++) {
+            if (entries[i] != val) continue;
+
+            // -- move this one to the front --
+
+            // if it is the first, nothing to handle
+            if (i == first) return;
+
+            // if this is the last, just first and last need to change
+            if (i == last) {
+                auto tmp = last;
+                last = priv[last];
+                first = tmp;
+                return;
+            }
+
+            // otherwise we need to update the linked list
+
+            // remove from current position
+            post[priv[i]] = post[i];
+            priv[post[i]] = priv[i];
+
+            // insert in first position
+            post[i] = first;
+            priv[i] = last;
+            priv[first] = i;
+            post[last] = i;
+
+            // update first pointer
+            first = i;
+            return;
+        }
+        // not present => drop last, make it first
+        entries[last] = val;
+        auto tmp = last;
+        last = priv[last];
+        first = tmp;
+    }
+
+    /**
+     * Iterates over the elements within this cache in LRU order.
+     * The operator is applied on each element. If the operation
+     * returns false, iteration is continued. If the operator return
+     * true, iteration is stopped -- similar to the any operator.
+     *
+     * @param op the operator to be applied on every element
+     * @return true if op returned true for any entry, false otherwise
+     */
+    template <typename Op>
+    bool forEachInOrder(const Op& op) const {
+        std::size_t i = first;
+        while (i != last) {
+            if (op(entries[i])) return true;
+            i = post[i];
+        }
+        return op(entries[i]);
+    }
+
+    // equivalent to forEachInOrder
+    template <typename Op>
+    bool any(const Op& op) const {
+        return forEachInOrder(op);
+    }
+};
+
+template <typename T, unsigned size>
+std::ostream& operator<<(std::ostream& out, const LRUCache<T, size>& cache) {
+    bool first = true;
+    cache.forEachInOrder([&](const T& val) {
+        if (!first) out << ",";
+        first = false;
+        out << val;
+        return false;
+    });
+    return out;
+}
+
+// a specialization for a single-entry cache
+template <typename T>
+class LRUCache<T, 1> {
+    // the single entry in this cache
+    T entry;
+
+public:
+    // creates a new, empty cache
+    LRUCache() : entry() {}
+
+    // creates a new, empty cache storing the given value
+    LRUCache(const T& val) : entry(val) {}
+
+    // clears the content of this cache
+    void clear(const T& val = T()) {
+        entry = val;
+    }
+
+    // registers an access to the given element
+    void access(const T& val) {
+        entry = val;
+    }
+
+    /**
+     * See description in most general case.
+     */
+    template <typename Op>
+    bool forEachInOrder(const Op& op) const {
+        return op(entry);
+    }
+
+    // equivalent to forEachInOrder
+    template <typename Op>
+    bool any(const Op& op) const {
+        return forEachInOrder(op);
+    }
+
+    // --- print support ---
+
+    friend std::ostream& operator<<(std::ostream& out, const LRUCache& cache) {
+        return out << cache.entry;
+    }
+};
+
+// a specialization for no-entry caches.
+template <typename T>
+class LRUCache<T, 0> {
+public:
+    // creates a new, empty cache
+    LRUCache(const T& = T()) {}
+
+    // clears the content of this cache
+    void clear(const T& = T()) {
+        // nothing to do
+    }
+
+    // registers an access to the given element
+    void access(const T&) {
+        // nothing to do
+    }
+
+    /**
+     * Always returns false.
+     */
+    template <typename Op>
+    bool forEachInOrder(const Op&) const {
+        return false;
+    }
+
+    // equivalent to forEachInOrder
+    template <typename Op>
+    bool any(const Op& op) const {
+        return forEachInOrder(op);
+    }
+
+    // --- print support ---
+
+    friend std::ostream& operator<<(std::ostream& out, const LRUCache& cache) {
+        return out << "-empty-";
+    }
+};
+
+// -------------------------------------------------------------------------------
 //                           Hint / Cache Profiling
 // -------------------------------------------------------------------------------
 
@@ -1278,17 +1553,17 @@ public:
     }
 
     std::size_t getHits() const {
-        ASSERT(active);
+        assert(active);
         return hits;
     }
 
     std::size_t getMisses() const {
-        ASSERT(active);
+        assert(active);
         return misses;
     }
 
     std::size_t getAccesses() const {
-        ASSERT(active);
+        assert(active);
         return getHits() + getMisses();
     }
 

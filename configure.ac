@@ -22,20 +22,21 @@ AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Do not set default CFLAGS and CXXFLAGS
-CXXFLAGS=" -Wall -std=c++11 $CXXFLAGS"
+ENV_CXXFLAGS="$CXXFLAGS"
+CXXFLAGS=" -Wall -std=c++11"
 
 # Disable provenance
 AC_ARG_ENABLE(
-  [provenance],
-  AS_HELP_STRING([--disable-provenance], [Disable provenance display])
+  [ncurses],
+  AS_HELP_STRING([--disable-ncurses], [Disable ncurses-based provenance display])
 )
-AS_IF([test "x$enable_provenance" != "xno"], [
+AS_IF([test "x$enable_ncurses" != "xno"], [
   AX_WITH_CURSES
-  AS_IF([test "x$ax_cv_ncurses" != "xyes"],[AC_MSG_ERROR([ncurses library is needed for support of provenance display. To build without provenance support use --disable-provenance.])])
+  AS_IF([test "x$ax_cv_ncurses" != "xyes"],[AC_MSG_ERROR([ncurses library is needed for support of the ncurses provenance display. To build without ncurses support use --disable-ncurses.])])
   AS_VAR_APPEND(LIBS, ["$CURSES_LIB"])
-  AS_VAR_APPEND(CXXFLAGS, [" -DUSE_PROVENANCE "])
+  AS_VAR_APPEND(CXXFLAGS, [" -DUSE_NCURSES "])
 ])
-AM_CONDITIONAL([PROVENANCE], [test "x$enable_provenance" != "xno"])
+AM_CONDITIONAL([NCURSES], [test "x$enable_ncurses" != "xno"])
 
 # Enable sanitise memory mode
 AC_ARG_ENABLE(
@@ -66,6 +67,18 @@ if test "$BUILD_TYPE" == "Debug" ; then
   # set up debug mode
   CXXFLAGS="$CXXFLAGS -O0 -g3"
 fi
+
+# Enable MPI
+AC_ARG_ENABLE(
+  [mpi],
+  [AS_HELP_STRING([--enable-mpi], [Enable MPI])]
+)
+AS_IF([test "x$enable_mpi" = "xyes"], [
+    AS_VAR_APPEND(CXXFLAGS, [" -DUSE_MPI "])
+    AS_VAR_APPEND(CXXFLAGS, [" $(mpiCC --showme:compile) "])
+    AS_VAR_APPEND(LDFLAGS, [" $(mpiCC --showme:link) "])
+])
+AM_CONDITIONAL([MPI], [test "x$enable_mpi" = "xyes"])
 
 AC_ISC_POSIX
 AC_PROG_CPP
@@ -159,31 +172,6 @@ if test -n "$SOUFFLE_PACKAGING"; then
   echo "Enable packaging for: $DISTRIBUTION"
 fi
 
-# Enable Intel Restricted Transactional Memory
-AC_ARG_ENABLE(
-  [intel-rtm],
-  [AS_HELP_STRING([--enable-intel-rtm], [Enable usage of Intel Restricted Transactional Memory])]
-)
-AS_IF([test "x$enable_intel_rtm" = "xyes"], [
-  case $host_os in
-    darwin* )
-      TSX=[`sysctl machdep.cpu.features | tr A-x a-x | grep -o rtm`]
-    ;;
-    linux*)
-      TSX=[`lscpu | grep -o rtm`]
-    ;;
-    *BSD* |*bsd*)
-      TSX=[`dmesg -a |grep Features | tr A-x a-x | grep -o rtm`]
-    ;;
-    *)
-      TSX=""
-    ;;
-  esac
-
-  AS_IF([test "x$TSX" != "xrtm"], [AC_MSG_ERROR([Intel Restricted Transactional Memory is not supported on this machine.])])
-  AS_VAR_APPEND(CXXFLAGS, [" -mrtm -DHAS_TSX"])
-])
-
 AC_ARG_ENABLE(
   [64bit-domain],
   [AS_HELP_STRING([--enable-64bit-domain], [Enable 64-bit number values in Datalog tuples])]
@@ -237,9 +225,33 @@ DIST_PACKAGING([debian ubuntu],[DEBIAN_PACKAGE],[DEBUILD],[debuild])
 DIST_PACKAGING([osx],[OSX_PACKAGE],[PKGBUILD],[pkgbuild])
 DIST_PACKAGING([bsd],[BSD_PACKAGE],[PKGBUILD],[pkgbuild])
 
+dnl ============================libffi=========================================
+m4_define_default([PKG_PROG_PKG_CONFIG],[])
+m4_define_default([PKG_CHECK_MODULES],
+   [
+  case $2 in
+    libffi )
+      AC_CHECK_LIB(ffi, ffi_call,,
+          [AC_MSG_ERROR([required library ffi missing])])
+      AC_CHECK_HEADER(ffi.h,,[AC_MSG_ERROR([required headers ffi.h missing.])])
+    ;;
+    * )
+      AC_MSG_ERROR([Unsupported library])
+    ;;
+  esac
+])
+
+# Executed if PKG_CONFIG is available
+PKG_PROG_PKG_CONFIG()
+PKG_CHECK_MODULES(FFI, [libffi])
+
 dnl Enable pthread library
 AC_CHECK_LIB(pthread, pthread_create,,
     [AC_MSG_ERROR([required library pthread missing])])
+
+dnl Enable dynamic loadable libaries
+AC_CHECK_LIB(dl, dlopen,,
+    [AC_MSG_ERROR([required library dynamic load missing])])
 
 dnl Enables OpenMP in the souffle compiler and interpreter
 AC_OPENMP
@@ -252,44 +264,73 @@ AC_CONFIG_FILES([
   src/Makefile
   tests/Makefile
   tests/atlocal
+  tests/interface/functors/Makefile
 ])
-AC_CONFIG_LINKS([include/souffle/CompiledOptions.h:src/CompiledOptions.h])
-AC_CONFIG_LINKS([include/souffle/CompiledIndexUtils.h:src/CompiledIndexUtils.h])
-AC_CONFIG_LINKS([include/souffle/CompiledRelation.h:src/CompiledRelation.h])
-AC_CONFIG_LINKS([include/souffle/CompiledTuple.h:src/CompiledTuple.h])
-AC_CONFIG_LINKS([include/souffle/CompiledRecord.h:src/CompiledRecord.h])
-AC_CONFIG_LINKS([include/souffle/CompiledSouffle.h:src/CompiledSouffle.h])
-AC_CONFIG_LINKS([include/souffle/SouffleInterface.h:src/SouffleInterface.h])
-AC_CONFIG_LINKS([include/souffle/ParallelUtils.h:src/ParallelUtils.h])
-AC_CONFIG_LINKS([include/souffle/RamTypes.h:src/RamTypes.h])
-AC_CONFIG_LINKS([include/souffle/AstTypes.h:src/AstTypes.h])
+AC_CONFIG_LINKS([include/souffle/BinaryConstraintOps.h:src/BinaryConstraintOps.h])
 AC_CONFIG_LINKS([include/souffle/BTree.h:src/BTree.h])
-AC_CONFIG_LINKS([include/souffle/htmx86.h:src/htmx86.h])
-AC_CONFIG_LINKS([include/souffle/Trie.h:src/Trie.h])
-AC_CONFIG_LINKS([include/souffle/BinaryRelation.h:src/BinaryRelation.h])
-AC_CONFIG_LINKS([include/souffle/BlockList.h:src/BlockList.h])
-AC_CONFIG_LINKS([include/souffle/UnionFind.h:src/UnionFind.h])
-AC_CONFIG_LINKS([include/souffle/Table.h:src/Table.h])
-AC_CONFIG_LINKS([include/souffle/IterUtils.h:src/IterUtils.h])
-AC_CONFIG_LINKS([include/souffle/Util.h:src/Util.h])
-AC_CONFIG_LINKS([include/souffle/Macro.h:src/Macro.h])
-AC_CONFIG_LINKS([include/souffle/Logger.h:src/Logger.h])
+AC_CONFIG_LINKS([include/souffle/CompiledIndexUtils.h:src/CompiledIndexUtils.h])
+AC_CONFIG_LINKS([include/souffle/CompiledOptions.h:src/CompiledOptions.h])
+AC_CONFIG_LINKS([include/souffle/CompiledRecord.h:src/CompiledRecord.h])
+AC_CONFIG_LINKS([include/souffle/CompiledRelation.h:src/CompiledRelation.h])
+AC_CONFIG_LINKS([include/souffle/CompiledSouffle.h:src/CompiledSouffle.h])
+AC_CONFIG_LINKS([include/souffle/CompiledTuple.h:src/CompiledTuple.h])
+AC_CONFIG_LINKS([include/souffle/EventProcessor.h:src/EventProcessor.h])
 AC_CONFIG_LINKS([include/souffle/Explain.h:src/Explain.h])
-AC_CONFIG_LINKS([include/souffle/ExplainTree.h:src/ExplainTree.h])
 AC_CONFIG_LINKS([include/souffle/ExplainProvenance.h:src/ExplainProvenance.h])
-AC_CONFIG_LINKS([include/souffle/ExplainProvenanceSLD.h:src/ExplainProvenanceSLD.h])
-AC_CONFIG_LINKS([include/souffle/SignalHandler.h:src/SignalHandler.h])
+AC_CONFIG_LINKS([include/souffle/ExplainProvenanceImpl.h:src/ExplainProvenanceImpl.h])
+AC_CONFIG_LINKS([include/souffle/ExplainTree.h:src/ExplainTree.h])
+AC_CONFIG_LINKS([include/souffle/EquivalenceRelation.h:src/EquivalenceRelation.h])
 AC_CONFIG_LINKS([include/souffle/IODirectives.h:src/IODirectives.h])
 AC_CONFIG_LINKS([include/souffle/IOSystem.h:src/IOSystem.h])
-AC_CONFIG_LINKS([include/souffle/gzfstream.h:src/gzfstream.h])
+AC_CONFIG_LINKS([include/souffle/IterUtils.h:src/IterUtils.h])
+AC_CONFIG_LINKS([include/souffle/LambdaBTree.h:src/LambdaBTree.h])
+AC_CONFIG_LINKS([include/souffle/Logger.h:src/Logger.h])
+AC_CONFIG_LINKS([include/souffle/ParallelUtils.h:src/ParallelUtils.h])
+AC_CONFIG_LINKS([include/souffle/PiggyList.h:src/PiggyList.h])
+AC_CONFIG_LINKS([include/souffle/ProfileDatabase.h:src/ProfileDatabase.h])
+AC_CONFIG_LINKS([include/souffle/ProfileEvent.h:src/ProfileEvent.h])
+AC_CONFIG_LINKS([include/souffle/RamTypes.h:src/RamTypes.h])
 AC_CONFIG_LINKS([include/souffle/ReadStream.h:src/ReadStream.h])
 AC_CONFIG_LINKS([include/souffle/ReadStreamCSV.h:src/ReadStreamCSV.h])
 AC_CONFIG_LINKS([include/souffle/ReadStreamSQLite.h:src/ReadStreamSQLite.h])
+AC_CONFIG_LINKS([include/souffle/SignalHandler.h:src/SignalHandler.h])
+AC_CONFIG_LINKS([include/souffle/SouffleInterface.h:src/SouffleInterface.h])
+AC_CONFIG_LINKS([include/souffle/SymbolTable.h:src/SymbolTable.h])
+AC_CONFIG_LINKS([include/souffle/Table.h:src/Table.h])
+AC_CONFIG_LINKS([include/souffle/Brie.h:src/Brie.h])
+AC_CONFIG_LINKS([include/souffle/UnionFind.h:src/UnionFind.h])
+AC_CONFIG_LINKS([include/souffle/Util.h:src/Util.h])
 AC_CONFIG_LINKS([include/souffle/WriteStream.h:src/WriteStream.h])
 AC_CONFIG_LINKS([include/souffle/WriteStreamCSV.h:src/WriteStreamCSV.h])
 AC_CONFIG_LINKS([include/souffle/WriteStreamSQLite.h:src/WriteStreamSQLite.h])
-AC_CONFIG_LINKS([include/souffle/SymbolMask.h:src/SymbolMask.h])
-AC_CONFIG_LINKS([include/souffle/SymbolTable.h:src/SymbolTable.h])
+AC_CONFIG_LINKS([include/souffle/Mpi.h:src/Mpi.h])
+AC_CONFIG_LINKS([include/souffle/gzfstream.h:src/gzfstream.h])
+AC_CONFIG_LINKS([include/souffle/json11.h:src/json11.h])
+AC_CONFIG_LINKS([include/souffle/profile/Cell.h:src/profile/Cell.h])
+AC_CONFIG_LINKS([include/souffle/profile/CellInterface.h:src/profile/CellInterface.h])
+AC_CONFIG_LINKS([include/souffle/profile/Cli.h:src/profile/Cli.h])
+AC_CONFIG_LINKS([include/souffle/profile/DataComparator.h:src/profile/DataComparator.h])
+AC_CONFIG_LINKS([include/souffle/profile/Iteration.h:src/profile/Iteration.h])
+AC_CONFIG_LINKS([include/souffle/profile/OutputProcessor.h:src/profile/OutputProcessor.h])
+AC_CONFIG_LINKS([include/souffle/profile/ProgramRun.h:src/profile/ProgramRun.h])
+AC_CONFIG_LINKS([include/souffle/profile/Reader.h:src/profile/Reader.h])
+AC_CONFIG_LINKS([include/souffle/profile/Relation.h:src/profile/Relation.h])
+AC_CONFIG_LINKS([include/souffle/profile/Row.h:src/profile/Row.h])
+AC_CONFIG_LINKS([include/souffle/profile/Rule.h:src/profile/Rule.h])
+AC_CONFIG_LINKS([include/souffle/profile/StringUtils.h:src/profile/StringUtils.h])
+AC_CONFIG_LINKS([include/souffle/profile/Table.h:src/profile/Table.h])
+AC_CONFIG_LINKS([include/souffle/profile/Tui.h:src/profile/Tui.h])
+AC_CONFIG_LINKS([include/souffle/profile/UserInputReader.h:src/profile/UserInputReader.h])
+AC_CONFIG_LINKS([include/souffle/profile/HtmlGenerator.h:src/profile/HtmlGenerator.h])
+AC_CONFIG_LINKS([include/souffle/profile/htmlCssChartist.h:src/profile/htmlCssChartist.h])
+AC_CONFIG_LINKS([include/souffle/profile/htmlJsChartistMin.h:src/profile/htmlJsChartistMin.h])
+AC_CONFIG_LINKS([include/souffle/profile/htmlJsMain.h:src/profile/htmlJsMain.h])
+AC_CONFIG_LINKS([include/souffle/profile/htmlJsUtil.h:src/profile/htmlJsUtil.h])
+AC_CONFIG_LINKS([include/souffle/profile/htmlCssStyle.h:src/profile/htmlCssStyle.h])
+AC_CONFIG_LINKS([include/souffle/profile/htmlJsChartistPlugin.h:src/profile/htmlJsChartistPlugin.h])
+AC_CONFIG_LINKS([include/souffle/profile/htmlJsTableSort.h:src/profile/htmlJsTableSort.h])
+AC_CONFIG_LINKS([include/souffle/profile/htmlMain.h:src/profile/htmlMain.h])
+AC_CONFIG_LINKS([utilities/bash-completion/completions/souffle:debian/souffle.bash-completion])
 
 AM_MISSING_PROG([AUTOM4TE], [autom4te])
 
@@ -319,6 +360,10 @@ AC_FUNC_MMAP
 AC_FUNC_REALLOC
 AC_FUNC_STRERROR_R
 AC_CHECK_FUNCS([dup2 fchdir getcwd getpagesize gettimeofday isascii memset mkdir munmap pow regcomp rmdir setenv socket strcasecmp strchr strdup strerror strrchr strstr strtol strtoull])
+
+SOUFFLE_CXXFLAGS="$CXXFLAGS"
+AC_SUBST(SOUFFLE_CXXFLAGS)
+CXXFLAGS="$CXXFLAGS $ENV_CXXFLAGS"
 
 AC_OUTPUT(
   [ src/souffle-compile src/souffle-config debian/changelog ],

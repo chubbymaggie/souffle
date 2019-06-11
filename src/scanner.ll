@@ -37,8 +37,8 @@
     #include "AstProgram.h"
     #include "StringPool.h"
 
-    #include "AstSrcLocation.h"
-    #define YYLTYPE AstSrcLocation
+    #include "SrcLocation.h"
+    #define YYLTYPE SrcLocation
 
     #include "ParserDriver.h"
     #include "RamTypes.h"
@@ -55,9 +55,9 @@
 
     /* Execute when matching */
 #define YY_USER_ACTION  { \
-    yylloc.start = AstSrcLocation::Point({ yylineno, yycolumn }); \
+    yylloc.start = SrcLocation::Point({ yylineno, yycolumn }); \
     yycolumn += yyleng;             \
-    yylloc.end   = AstSrcLocation::Point({ yylineno, yycolumn }); \
+    yylloc.end   = SrcLocation::Point({ yylineno, yycolumn }); \
     yylloc.filename = yyfilename;   \
 }
 
@@ -70,6 +70,7 @@
 
 %%
 ".decl"                               { return yy::parser::make_DECL(yylloc); }
+".functor"                            { return yy::parser::make_FUNCTOR(yylloc); }
 ".input"                              { return yy::parser::make_INPUT_DECL(yylloc); }
 ".output"                             { return yy::parser::make_OUTPUT_DECL(yylloc); }
 ".printsize"                          { return yy::parser::make_PRINTSIZE_DECL(yylloc); }
@@ -95,23 +96,23 @@
 "contains"                            { return yy::parser::make_TCONTAINS(yylloc); }
 "output"                              { return yy::parser::make_OUTPUT_QUALIFIER(yylloc); }
 "input"                               { return yy::parser::make_INPUT_QUALIFIER(yylloc); }
-"data"                                { return yy::parser::make_DATA_QUALIFIER(yylloc); }
 "overridable"                         { return yy::parser::make_OVERRIDABLE_QUALIFIER(yylloc); }
 "printsize"                           { return yy::parser::make_PRINTSIZE_QUALIFIER(yylloc); }
 "eqrel"                               { return yy::parser::make_EQREL_QUALIFIER(yylloc); }
-"rbtset"                              { return yy::parser::make_RBTSET_QUALIFIER(yylloc); }
-"hashset"                             { return yy::parser::make_HASHSET_QUALIFIER(yylloc); }
 "inline"                              { return yy::parser::make_INLINE_QUALIFIER(yylloc); }
 "brie"                                { return yy::parser::make_BRIE_QUALIFIER(yylloc); }
 "btree"                               { return yy::parser::make_BTREE_QUALIFIER(yylloc); }
 "min"                                 { return yy::parser::make_MIN(yylloc); }
 "max"                                 { return yy::parser::make_MAX(yylloc); }
+"as"                                  { return yy::parser::make_AS(yylloc); }
 "nil"                                 { return yy::parser::make_NIL(yylloc); }
 "_"                                   { return yy::parser::make_UNDERSCORE(yylloc); }
 "count"                               { return yy::parser::make_COUNT(yylloc); }
 "sum"                                 { return yy::parser::make_SUM(yylloc); }
 "true"                                { return yy::parser::make_TRUE(yylloc); }
 "false"                               { return yy::parser::make_FALSE(yylloc); }
+"to_string"                           { return yy::parser::make_TOSTRING(yylloc); }
+"to_number"                           { return yy::parser::make_TONUMBER(yylloc); }
 ".strict"                             { return yy::parser::make_STRICT(yylloc); }
 ".plan"                               { return yy::parser::make_PLAN(yylloc); }
 "|"                                   { return yy::parser::make_PIPE(yylloc); }
@@ -129,6 +130,7 @@
 "."                                   { return yy::parser::make_DOT(yylloc); }
 "="                                   { return yy::parser::make_EQUALS(yylloc); }
 "*"                                   { return yy::parser::make_STAR(yylloc); }
+"@"                                   { return yy::parser::make_AT(yylloc); }
 "/"                                   { return yy::parser::make_SLASH(yylloc); }
 "^"                                   { return yy::parser::make_CARET(yylloc); }
 "%"                                   { return yy::parser::make_PERCENT(yylloc); }
@@ -186,23 +188,8 @@
 [\?a-zA-Z]|[_\?a-zA-Z][_\?a-zA-Z0-9]+ {
                                         return yy::parser::make_IDENT(SLOOKUP(yytext), yylloc);
                                       }
-\"([^\"]*|\\[^n])*\"                  {
+\"(\\.|[^"\\])*\"                     {
                                         yytext[strlen(yytext)-1]=0;
-                                        if(strlen(&yytext[1]) == 0) {
-                                          driver.error(yylloc, "string literal is empty");
-                                        }
-                                        for(size_t i=1;i<=strlen(&yytext[1]); i++) {
-                                          if(yytext[i] == '\t' || yytext[i] == '\n') {
-                                            driver.error(yylloc, "no tabs/newlines in string literals");
-                                            break;
-                                          }
-                                        }
-                                        for(size_t i=1;i<=strlen(&yytext[1]); i++) {
-                                          if(!isascii(yytext[i])) {
-                                            driver.error(yylloc, "only ascii characters in string literals");
-                                            break;
-                                          }
-                                        }
                                         return yy::parser::make_STRING(SLOOKUP(&yytext[1]), yylloc);
                                       }
 \#.*$                                 {

@@ -16,20 +16,20 @@
 
 #pragma once
 
-#include <map>
 #include <set>
 #include <vector>
 
 namespace souffle {
 
 // some forward declarations
-class AstNode;
-class AstVariable;
-class AstRelation;
 class AstAtom;
 class AstClause;
-class AstProgram;
 class AstLiteral;
+class AstNode;
+class AstProgram;
+class AstRelation;
+class AstVariable;
+class AstRecordInit;
 
 // ---------------------------------------------------------------
 //                      General Utilities
@@ -52,6 +52,24 @@ std::vector<const AstVariable*> getVariables(const AstNode& root);
  * @return a list of all variables referenced within
  */
 std::vector<const AstVariable*> getVariables(const AstNode* root);
+
+/**
+ * Obtains a list of all records referenced within the AST rooted
+ * by the given root node.
+ *
+ * @param root the root of the AST to be searched
+ * @return a list of all records referenced within
+ */
+std::vector<const AstRecordInit*> getRecords(const AstNode& root);
+
+/**
+ * Obtains a list of all records referenced within the AST rooted
+ * by the given root node.
+ *
+ * @param root the root of the AST to be searched
+ * @return a list of all records referenced within
+ */
+std::vector<const AstRecordInit*> getRecords(const AstNode* root);
 
 /**
  * Returns the relation referenced by the given atom.

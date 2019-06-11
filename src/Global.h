@@ -1,28 +1,31 @@
-#pragma once
+/*
+ * Souffle - A Datalog Compiler
+ * Copyright (c) 2018 The Souffle Developers. All Rights reserved
+ * Licensed under the Universal Permissive License v 1.0 as shown at:
+ * - https://opensource.org/licenses/UPL
+ * - <souffle root>/licenses/SOUFFLE-UPL.txt
+ */
 
-#include "Util.h"
+/************************************************************************
+ *
+ * @file Global.h
+ *
+ * Defines a configuration environment
+ *
+ ***********************************************************************/
+
+#pragma once
 
 #include <iostream>
 #include <map>
-#include <sstream>
 #include <string>
 #include <vector>
 
-#include <ctype.h>
-#include <getopt.h>
-
 namespace souffle {
 
-// TODO: this is the wrong place for this class, find somewhere better to put it
 /* A simple table class, to be used as a base for others to extend from. */
 template <typename K, typename V>
 class BaseTable {
-private:
-    /* Default object made by empty constructor to return by reference. */
-    const V _default;
-    /* The raw data backing this table. */
-    std::map<K, V> _data;
-
 public:
     /* Empty constructor. */
     BaseTable() : _default(V()), _data(std::map<K, V>()) {}
@@ -53,11 +56,11 @@ public:
         return (has(key)) ? _data.at(key) : value;
     }
     /* Check the table has the specified key. */
-    const bool has(const K& key) const {
+    bool has(const K& key) const {
         return _data.find(key) != _data.end();
     }
     /* Check the table has the specified key and the specified value for that key. */
-    const bool has(const K& key, const V& value) const {
+    bool has(const K& key, const V& value) const {
         return has(key) && _data.at(key) == value;
     }
     /* Set the entry in the table for the specified key to an object of the value class called with an empty
@@ -77,6 +80,12 @@ public:
     void print(std::ostream& os) {
         os << _data << std::endl;
     }
+
+private:
+    /* Default object made by empty constructor to return by reference. */
+    const V _default;
+    /* The raw data backing this table. */
+    std::map<K, V> _data;
 };
 
 /* Struct to represent an option given to the main function by command line arguments. */
@@ -96,31 +105,27 @@ struct MainOption {
 
 /* The MainConfig class, used to handle the global configuration and the help text. */
 class MainConfig : public BaseTable<std::string, std::string> {
-private:
-    /* The help text, printed if there is an error in the command line arguments. */
-    std::string _help;
-
 public:
     /* Empty constructor, does nothing. */
     MainConfig() : BaseTable<std::string, std::string>() {}
     /* The argument processing method, this takes the arguments provided to main, a header, a footer, and a
        list of options.
        From these, we construct the help text and the global configuration. See Global.cpp for details. */
-    void processArgs(int argc, char** argv, const std::string header, const std::string footer,
+    void processArgs(int argc, char** argv, const std::string& header, const std::string& footer,
             const std::vector<MainOption> mainOptions);
     /* Obtain the help text as a string. Note that 'processArgs' must be called before this is used. */
     const std::string& help() const {
         return _help;
     }
+
+private:
+    /* The help text, printed if there is an error in the command line arguments. */
+    std::string _help;
 };
 
 /* The global class. Currently used to provide a singleton instance of the global config. This class may be
  * used to isolate all globals. */
 class Global {
-private:
-    /* Private empty constructor, there is only one global instance. */
-    Global() = default;
-
 public:
     /* Deleted copy constructor. */
     Global(const Global&) = delete;
@@ -131,5 +136,9 @@ public:
         static MainConfig _config;
         return _config;
     }
+
+private:
+    /* Private empty constructor, there is only one global instance. */
+    Global() = default;
 };
 }  // namespace souffle

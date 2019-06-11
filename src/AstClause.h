@@ -17,32 +17,26 @@
 
 #pragma once
 
-#include "AstArgument.h"
 #include "AstLiteral.h"
-#include "AstRelationIdentifier.h"
+#include "AstNode.h"
 #include "Util.h"
-
+#include <cassert>
+#include <cstddef>
+#include <map>
 #include <memory>
-#include <set>
-#include <string>
+#include <ostream>
+#include <utility>
 #include <vector>
 
 namespace souffle {
-
-class AstProgram;
 
 /**
  * An execution order for atoms within a clause.
  */
 class AstExecutionOrder : public AstNode {
 public:
-    typedef typename std::vector<unsigned int>::const_iterator const_iterator;
+    using const_iterator = typename std::vector<unsigned int>::const_iterator;
 
-private:
-    /** The actual order, starting with 1 (!) */
-    std::vector<unsigned int> order;
-
-public:
     /** The length of this order */
     std::size_t size() const {
         return order.size();
@@ -106,10 +100,14 @@ public:
 protected:
     /** Implements the node comparison for this node type */
     bool equal(const AstNode& node) const override {
-        assert(dynamic_cast<const AstExecutionOrder*>(&node));
-        const AstExecutionOrder& other = static_cast<const AstExecutionOrder&>(node);
+        assert(nullptr != dynamic_cast<const AstExecutionOrder*>(&node));
+        const auto& other = static_cast<const AstExecutionOrder&>(node);
         return order == other.order;
     }
+
+private:
+    /** The actual order, starting with 1 (!) */
+    std::vector<unsigned int> order;
 };
 
 /**
@@ -118,17 +116,9 @@ protected:
  */
 class AstExecutionPlan : public AstNode {
 public:
-    typedef typename std::map<int, AstExecutionOrder>::const_iterator const_iterator;
+    using const_iterator = typename std::map<int, AstExecutionOrder>::const_iterator;
 
-private:
-    /** Mapping versions of clauses to execution plans */
-    std::map<int, std::unique_ptr<AstExecutionOrder>> plans;
-
-    /** remember maximal version number */
-    int maxVersion;
-
-public:
-    AstExecutionPlan() : maxVersion(-1) {}
+    AstExecutionPlan() = default;
 
     /** Updates the execution order for a special version of a rule */
     void setOrderFor(int version, std::unique_ptr<AstExecutionOrder> plan) {
@@ -171,14 +161,14 @@ public:
         if (!plans.empty()) {
             out << "\n\n   .plan ";
             bool first = true;
-            for (auto it = plans.begin(); it != plans.end(); ++it) {
+            for (const auto& plan : plans) {
                 if (first) {
                     first = false;
                 } else {
                     out << ",";
                 }
-                out << (*it).first << ":";
-                (*it).second->print(out);
+                out << plan.first << ":";
+                plan.second->print(out);
             }
         }
     }
@@ -210,8 +200,8 @@ public:
 protected:
     /** Implements the node comparison for this node type */
     bool equal(const AstNode& node) const override {
-        assert(dynamic_cast<const AstExecutionPlan*>(&node));
-        const AstExecutionPlan& other = static_cast<const AstExecutionPlan&>(node);
+        assert(nullptr != dynamic_cast<const AstExecutionPlan*>(&node));
+        const auto& other = static_cast<const AstExecutionPlan&>(node);
         if (maxVersion != other.maxVersion) {
             return false;
         }
@@ -230,6 +220,13 @@ protected:
         }
         return true;
     }
+
+private:
+    /** Mapping versions of clauses to execution plans */
+    std::map<int, std::unique_ptr<AstExecutionOrder>> plans;
+
+    /** remember maximal version number */
+    int maxVersion = -1;
 };
 
 /**
@@ -245,35 +242,10 @@ protected:
  *       Clause should be  made abstract and have 2 subclasses: Rule and Fact.
  */
 class AstClause : public AstNode {
-protected:
-    /** The head of the clause */
-    std::unique_ptr<AstAtom> head;
-
-    /** The atoms in the body of this clause */
-    std::vector<std::unique_ptr<AstAtom>> atoms;
-
-    /** The negations in the body of this clause */
-    std::vector<std::unique_ptr<AstNegation>> negations;
-
-    /** The constraints in the body of this clause */
-    std::vector<std::unique_ptr<AstConstraint>> constraints;
-
-    /** Determines whether the given execution order should be enforced */
-    bool fixedPlan;
-
-    /** The user defined execution plan -- if any */
-    std::unique_ptr<AstExecutionPlan> plan;
-
-    /** Determines whether this is an internally generated clause resulting from resolving syntactic sugar */
-    bool generated;
-
-    /** Stores a unique number for each clause in a relation */
-    size_t clauseNum;
-
 public:
     /** Construct an empty clause with empty list of literals and
         its head set to NULL */
-    AstClause() : head(nullptr), fixedPlan(false), plan(nullptr), generated(false) {}
+    AstClause() : head(nullptr), plan(nullptr) {}
 
     ~AstClause() override = default;
 
@@ -290,7 +262,7 @@ public:
 
     /** Return the number of elements in the body of the Clause */
     size_t getBodySize() const {
-        return atoms.size() + negations.size() + constraints.size();
+        return atoms.size() + negations.size() + provNegations.size() + constraints.size();
     }
 
     /** Return the i-th Literal in body of the clause */
@@ -321,7 +293,7 @@ public:
     std::vector<AstBinaryConstraint*> getBinaryConstraints() const {
         std::vector<AstBinaryConstraint*> result;
         for (auto& constraint : constraints) {
-            if (AstBinaryConstraint* br = dynamic_cast<AstBinaryConstraint*>(constraint.get())) {
+            if (auto* br = dynamic_cast<AstBinaryConstraint*>(constraint.get())) {
                 result.push_back(br);
             }
         }
@@ -384,7 +356,7 @@ public:
     /** Print this clause to a given stream */
     void print(std::ostream& os) const override;
 
-    /** Creates a clone if this AST sub-structure */
+    /** Creates a clone of this AST sub-structure */
     AstClause* clone() const override {
         auto res = new AstClause();
         res->setSrcLoc(getSrcLoc());
@@ -393,13 +365,16 @@ public:
         }
         res->head = (head) ? std::unique_ptr<AstAtom>(head->clone()) : nullptr;
         for (const auto& cur : atoms) {
-            res->atoms.push_back(std::unique_ptr<AstAtom>(cur->clone()));
+            res->atoms.emplace_back(cur->clone());
         }
         for (const auto& cur : negations) {
-            res->negations.push_back(std::unique_ptr<AstNegation>(cur->clone()));
+            res->negations.emplace_back(cur->clone());
+        }
+        for (const auto& cur : provNegations) {
+            res->provNegations.emplace_back(cur->clone());
         }
         for (const auto& cur : constraints) {
-            res->constraints.push_back(std::unique_ptr<AstConstraint>(cur->clone()));
+            res->constraints.emplace_back(cur->clone());
         }
         res->fixedPlan = fixedPlan;
         res->generated = generated;
@@ -415,6 +390,9 @@ public:
         for (auto& lit : negations) {
             lit = map(std::move(lit));
         }
+        for (auto& lit : provNegations) {
+            lit = map(std::move(lit));
+        }
         for (auto& lit : constraints) {
             lit = map(std::move(lit));
         }
@@ -422,7 +400,7 @@ public:
 
     /** clone head generates a new clause with the same head but empty body */
     AstClause* cloneHead() const {
-        AstClause* clone = new AstClause();
+        auto* clone = new AstClause();
         clone->setSrcLoc(getSrcLoc());
         clone->setHead(std::unique_ptr<AstAtom>(getHead()->clone()));
         if (getExecutionPlan()) {
@@ -441,6 +419,9 @@ public:
         for (auto& cur : negations) {
             res.push_back(cur.get());
         }
+        for (auto& cur : provNegations) {
+            res.push_back(cur.get());
+        }
         for (auto& cur : constraints) {
             res.push_back(cur.get());
         }
@@ -448,10 +429,38 @@ public:
     }
 
 protected:
+    /** The head of the clause */
+    std::unique_ptr<AstAtom> head;
+
+    /** The atoms in the body of this clause */
+    std::vector<std::unique_ptr<AstAtom>> atoms;
+
+    /** The negations in the body of this clause */
+    std::vector<std::unique_ptr<AstNegation>> negations;
+
+    /** The provenance negations in the body of this clause */
+    std::vector<std::unique_ptr<AstProvenanceNegation>> provNegations;
+
+    /** The constraints in the body of this clause */
+    std::vector<std::unique_ptr<AstConstraint>> constraints;
+
+    /** Determines whether the given execution order should be enforced */
+    bool fixedPlan = false;
+
+    /** The user defined execution plan -- if any */
+    std::unique_ptr<AstExecutionPlan> plan;
+
+    /** Determines whether this is an internally generated clause resulting from resolving syntactic sugar */
+    bool generated = false;
+
+    /** Stores a unique number for each clause in a relation,
+        used for provenance */
+    size_t clauseNum = 0;
+
     /** Implements the node comparison for this node type */
     bool equal(const AstNode& node) const override {
-        assert(dynamic_cast<const AstClause*>(&node));
-        const AstClause& other = static_cast<const AstClause&>(node);
+        assert(nullptr != dynamic_cast<const AstClause*>(&node));
+        const auto& other = static_cast<const AstClause&>(node);
         return *head == *other.head && equal_targets(atoms, other.atoms) &&
                equal_targets(negations, other.negations) && equal_targets(constraints, other.constraints);
     }

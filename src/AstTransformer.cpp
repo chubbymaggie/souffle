@@ -16,6 +16,10 @@
 
 #include "AstTransformer.h"
 #include "AstTranslationUnit.h"
+#include "ErrorReport.h"
+#include <chrono>
+#include <cstdlib>
+#include <iostream>
 
 namespace souffle {
 
@@ -33,8 +37,9 @@ bool MetaTransformer::applySubtransformer(AstTranslationUnit& translationUnit, A
     auto end = std::chrono::high_resolution_clock::now();
 
     if (verbose && !dynamic_cast<MetaTransformer*>(transformer)) {
+        std::string changedString = changed ? "changed" : "unchanged";
         std::cout << transformer->getName() << " time: " << std::chrono::duration<double>(end - start).count()
-                  << "sec" << std::endl;
+                  << "sec [" << changedString << "]" << std::endl;
     }
 
     /* Abort evaluation of the program if errors were encountered */

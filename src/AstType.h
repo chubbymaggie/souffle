@@ -21,6 +21,7 @@
 #include <iostream>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace souffle {
@@ -33,19 +34,16 @@ namespace souffle {
  *
  */
 class AstTypeIdentifier {
-    /**
-     * The list of names forming this identifier.
-     */
-    std::vector<std::string> names;
-
 public:
     // -- constructors --
 
     AstTypeIdentifier() : names() {}
 
-    AstTypeIdentifier(const std::string& name) : names(toVector(name)) {}
+    AstTypeIdentifier(const std::string& name) : names({name}) {}
 
     AstTypeIdentifier(const char* name) : AstTypeIdentifier(std::string(name)) {}
+
+    AstTypeIdentifier(const std::vector<std::string> names) : names(names) {}
 
     AstTypeIdentifier(const AstTypeIdentifier&) = default;
     AstTypeIdentifier(AstTypeIdentifier&&) = default;
@@ -98,6 +96,10 @@ public:
         id.print(out);
         return out;
     }
+
+private:
+    /** The list of names forming this identifier. */
+    std::vector<std::string> names;
 };
 
 /**
@@ -115,12 +117,9 @@ inline AstTypeIdentifier operator+(const std::string& name, const AstTypeIdentif
  *
  */
 class AstType : public AstNode {
-    /** In the AST each type has to have a name forming a unique identifier */
-    AstTypeIdentifier name;
-
 public:
     /** Creates a new type */
-    AstType(const AstTypeIdentifier& name = "") : name(name) {}
+    AstType(AstTypeIdentifier name = {""}) : name(std::move(name)) {}
 
     /** Obtains the name of this type */
     const AstTypeIdentifier& getName() const {
@@ -137,13 +136,17 @@ public:
         return {};
     }
 
-    /** Creates a clone if this AST sub-structure */
+    /** Creates a clone of this AST sub-structure */
     AstType* clone() const override = 0;
 
     /** Mutates this node */
     void apply(const AstNodeMapper& /*map*/) override {
         // no nested nodes in any type
     }
+
+private:
+    /** In the AST each type has to have a name forming a unique identifier */
+    AstTypeIdentifier name;
 };
 
 /**
@@ -152,9 +155,6 @@ public:
  * basic building blocks of souffle's type system.
  */
 class AstPrimitiveType : public AstType {
-    /** Indicates whether it is a number (true) or a symbol (false) */
-    bool num;
-
 public:
     /** Creates a new primitive type */
     AstPrimitiveType(const AstTypeIdentifier& name, bool num = false) : AstType(name), num(num) {}
@@ -174,18 +174,24 @@ public:
         os << ".type " << getName() << (num ? "= number" : "");
     }
 
-    /** Creates a clone if this AST sub-structure */
+    /** Creates a clone of this AST sub-structure */
     AstPrimitiveType* clone() const override {
-        return new AstPrimitiveType(getName(), num);
+        auto res = new AstPrimitiveType(getName(), num);
+        res->setSrcLoc(getSrcLoc());
+        return res;
     }
 
 protected:
     /** Implements the node comparison for this node type */
     bool equal(const AstNode& node) const override {
-        assert(dynamic_cast<const AstPrimitiveType*>(&node));
-        const AstPrimitiveType& other = static_cast<const AstPrimitiveType&>(node);
+        assert(nullptr != dynamic_cast<const AstPrimitiveType*>(&node));
+        const auto& other = static_cast<const AstPrimitiveType&>(node);
         return getName() == other.getName() && num == other.num;
     }
+
+private:
+    /** Indicates whether it is a number (true) or a symbol (false) */
+    bool num;
 };
 
 /**
@@ -194,12 +200,9 @@ protected:
  * union type.
  */
 class AstUnionType : public AstType {
-    /** The list of types aggregated by this union type */
-    std::vector<AstTypeIdentifier> types;
-
 public:
     /** Creates a new union type */
-    AstUnionType() {}
+    AstUnionType() = default;
 
     /** Obtains a reference to the list element types */
     const std::vector<AstTypeIdentifier>& getTypes() const {
@@ -211,14 +214,20 @@ public:
         types.push_back(type);
     }
 
+    void setVariantType(size_t idx, const AstTypeIdentifier& type) {
+        assert(idx < types.size() && "union variant index out of bounds");
+        types[idx] = type;
+    }
+
     /** Prints a summary of this type to the given stream */
     void print(std::ostream& os) const override {
         os << ".type " << getName() << " = " << join(types, " | ");
     }
 
-    /** Creates a clone if this AST sub-structure */
+    /** Creates a clone of this AST sub-structure */
     AstUnionType* clone() const override {
         auto res = new AstUnionType();
+        res->setSrcLoc(getSrcLoc());
         res->setName(getName());
         res->types = types;
         return res;
@@ -227,10 +236,14 @@ public:
 protected:
     /** Implements the node comparison for this node type */
     bool equal(const AstNode& node) const override {
-        assert(dynamic_cast<const AstUnionType*>(&node));
-        const AstUnionType& other = static_cast<const AstUnionType&>(node);
+        assert(nullptr != dynamic_cast<const AstUnionType*>(&node));
+        const auto& other = static_cast<const AstUnionType&>(node);
         return getName() == other.getName() && types == other.types;
     }
+
+private:
+    /** The list of types aggregated by this union type */
+    std::vector<AstTypeIdentifier> types;
 };
 
 /**
@@ -251,13 +264,8 @@ public:
         }
     };
 
-private:
-    /** The list of fields constituting this record type */
-    std::vector<Field> fields;
-
-public:
     /** Creates a new record type */
-    AstRecordType() {}
+    AstRecordType() = default;
 
     /** Adds a new field to this record type */
     void add(const std::string& name, const AstTypeIdentifier& type) {
@@ -267,6 +275,11 @@ public:
     /** Obtains the list of field constituting this record type */
     const std::vector<Field>& getFields() const {
         return fields;
+    }
+
+    void setFieldType(size_t idx, const AstTypeIdentifier& type) {
+        assert(idx < fields.size() && "record field index out of bounds");
+        fields[idx].type = type;
     }
 
     /** Prints a summary of this type to the given stream */
@@ -284,9 +297,10 @@ public:
         os << "]";
     }
 
-    /** Creates a clone if this AST sub-structure */
+    /** Creates a clone of this AST sub-structure */
     AstRecordType* clone() const override {
         auto res = new AstRecordType();
+        res->setSrcLoc(getSrcLoc());
         res->setName(getName());
         res->fields = fields;
         return res;
@@ -295,10 +309,14 @@ public:
 protected:
     /** Implements the node comparison for this node type */
     bool equal(const AstNode& node) const override {
-        assert(dynamic_cast<const AstRecordType*>(&node));
-        const AstRecordType& other = static_cast<const AstRecordType&>(node);
+        assert(nullptr != dynamic_cast<const AstRecordType*>(&node));
+        const auto& other = static_cast<const AstRecordType&>(node);
         return getName() == other.getName() && fields == other.fields;
     }
+
+private:
+    /** The list of fields constituting this record type */
+    std::vector<Field> fields;
 };
 
 }  // end of namespace souffle

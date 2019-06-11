@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include "SymbolMask.h"
 #include "SymbolTable.h"
 #include "WriteStream.h"
 
@@ -30,15 +29,9 @@ namespace souffle {
 class WriteStreamSQLite : public WriteStream {
 public:
     WriteStreamSQLite(const std::string& dbFilename, const std::string& relationName,
-            const SymbolMask& symbolMask, const SymbolTable& symbolTable, const bool provenance)
+            const std::vector<bool>& symbolMask, const SymbolTable& symbolTable, const bool provenance)
             : WriteStream(symbolMask, symbolTable, provenance), dbFilename(dbFilename),
               relationName(relationName) {
-        if (provenance) {
-            arity = symbolMask.getArity() - 2;
-        } else {
-            arity = symbolMask.getArity();
-        }
-
         openDB();
         createTables();
         prepareStatements();
@@ -53,14 +46,12 @@ public:
     }
 
 protected:
-    void writeNextTuple(const RamDomain* tuple) override {
-        if (arity == 0) {
-            return;
-        }
+    void writeNullary() override {}
 
+    void writeNextTuple(const RamDomain* tuple) override {
         for (size_t i = 0; i < arity; i++) {
             RamDomain value;
-            if (symbolMask.isSymbol(i)) {
+            if (symbolMask.at(i)) {
                 value = getSymbolTableID(tuple[i]);
             } else {
                 value = tuple[i];
@@ -97,14 +88,14 @@ private:
         }
     }
 
-    void throwError(std::string message) {
+    void throwError(const std::string& message) {
         std::stringstream error;
         error << message << sqlite3_errmsg(db) << "\n";
         throw std::invalid_argument(error.str());
     }
 
     uint64_t getSymbolTableIDFromDB(int index) {
-        if (sqlite3_bind_text(symbolSelectStatement, 1, symbolTable.unsafeResolve(index), -1,
+        if (sqlite3_bind_text(symbolSelectStatement, 1, symbolTable.unsafeResolve(index).c_str(), -1,
                     SQLITE_TRANSIENT) != SQLITE_OK) {
             throwError("SQLite error in sqlite3_bind_text: ");
         }
@@ -121,7 +112,7 @@ private:
             return dbSymbolTable[index];
         }
 
-        if (sqlite3_bind_text(symbolInsertStatement, 1, symbolTable.unsafeResolve(index), -1,
+        if (sqlite3_bind_text(symbolInsertStatement, 1, symbolTable.unsafeResolve(index).c_str(), -1,
                     SQLITE_TRANSIENT) != SQLITE_OK) {
             throwError("SQLite error in sqlite3_bind_text: ");
         }
@@ -176,7 +167,7 @@ private:
 
     void prepareInsertStatement() {
         std::stringstream insertSQL;
-        insertSQL << "INSERT INTO _" << relationName << " VALUES ";
+        insertSQL << "INSERT INTO '_" << relationName << "' VALUES ";
         insertSQL << "(@V0";
         for (unsigned int i = 1; i < arity; i++) {
             insertSQL << ",@V" << i;
@@ -223,7 +214,7 @@ private:
             if (i != 0) {
                 projectionClause << ",";
             }
-            if (!symbolMask.isSymbol(i)) {
+            if (!symbolMask.at(i)) {
                 projectionClause << "'_" << relationName << "'.'" << columnName << "'";
             } else {
                 projectionClause << "'_symtab_" << columnName << "'.symbol AS '" << columnName << "'";
@@ -254,19 +245,19 @@ private:
     const std::string& dbFilename;
     const std::string& relationName;
     const std::string symbolTableName = "__SymbolTable";
-    size_t arity;
 
     std::unordered_map<uint64_t, uint64_t> dbSymbolTable;
-    sqlite3_stmt* insertStatement;
-    sqlite3_stmt* symbolInsertStatement;
-    sqlite3_stmt* symbolSelectStatement;
-    sqlite3* db;
+    sqlite3_stmt* insertStatement = nullptr;
+    sqlite3_stmt* symbolInsertStatement = nullptr;
+    sqlite3_stmt* symbolSelectStatement = nullptr;
+    sqlite3* db = nullptr;
 };
 
 class WriteSQLiteFactory : public WriteStreamFactory {
 public:
-    std::unique_ptr<WriteStream> getWriter(const SymbolMask& symbolMask, const SymbolTable& symbolTable,
-            const IODirectives& ioDirectives, const bool provenance) override {
+    std::unique_ptr<WriteStream> getWriter(const std::vector<bool>& symbolMask,
+            const SymbolTable& symbolTable, const IODirectives& ioDirectives,
+            const bool provenance) override {
         std::string dbName = ioDirectives.get("dbname");
         std::string relationName = ioDirectives.getRelationName();
         return std::make_unique<WriteStreamSQLite>(dbName, relationName, symbolMask, symbolTable, provenance);

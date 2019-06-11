@@ -13,27 +13,24 @@
  * Defines a class for error reporting.
  *
  ***********************************************************************/
+
 #pragma once
 
-#include "AstSrcLocation.h"
+#include "SrcLocation.h"
 
 #include <algorithm>
 #include <cassert>
 #include <ostream>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace souffle {
 
 class DiagnosticMessage {
-private:
-    std::string message;
-    bool hasLoc;
-    AstSrcLocation location;
-
 public:
-    DiagnosticMessage(std::string message, AstSrcLocation location)
+    DiagnosticMessage(std::string message, SrcLocation location)
             : message(std::move(message)), hasLoc(true), location(std::move(location)) {}
 
     DiagnosticMessage(std::string message) : message(std::move(message)), hasLoc(false) {}
@@ -42,7 +39,7 @@ public:
         return message;
     }
 
-    const AstSrcLocation& getLocation() const {
+    const SrcLocation& getLocation() const {
         assert(hasLoc);
         return location;
     }
@@ -63,18 +60,17 @@ public:
         diagnosticMessage.print(out);
         return out;
     }
+
+private:
+    std::string message;
+    bool hasLoc;
+    SrcLocation location;
 };
 
 class Diagnostic {
 public:
     enum Type { ERROR, WARNING };
 
-private:
-    Type type;
-    DiagnosticMessage primaryMessage;
-    std::vector<DiagnosticMessage> additionalMessages;
-
-public:
     Diagnostic(Type type, DiagnosticMessage primaryMessage, std::vector<DiagnosticMessage> additionalMessages)
             : type(type), primaryMessage(std::move(primaryMessage)),
               additionalMessages(std::move(additionalMessages)) {}
@@ -140,12 +136,14 @@ public:
 
         return false;
     }
+
+private:
+    Type type;
+    DiagnosticMessage primaryMessage;
+    std::vector<DiagnosticMessage> additionalMessages;
 };
 
 class ErrorReport {
-    std::set<Diagnostic> diagnostics;
-    bool nowarn;
-
 public:
     ErrorReport(bool nowarn = false) : nowarn(nowarn) {}
 
@@ -166,18 +164,19 @@ public:
     }
 
     /** Adds an error with the given message and location */
-    void addError(const std::string& message, AstSrcLocation location) {
-        diagnostics.insert(Diagnostic(Diagnostic::ERROR, DiagnosticMessage(message, location)));
+    void addError(const std::string& message, SrcLocation location) {
+        diagnostics.insert(Diagnostic(Diagnostic::ERROR, DiagnosticMessage(message, std::move(location))));
     }
 
     /** Adds a warning with the given message and location */
-    void addWarning(const std::string& message, AstSrcLocation location) {
+    void addWarning(const std::string& message, SrcLocation location) {
         if (!nowarn) {
-            diagnostics.insert(Diagnostic(Diagnostic::WARNING, DiagnosticMessage(message, location)));
+            diagnostics.insert(
+                    Diagnostic(Diagnostic::WARNING, DiagnosticMessage(message, std::move(location))));
         }
     }
 
-    void addDiagnostic(Diagnostic diagnostic) {
+    void addDiagnostic(const Diagnostic& diagnostic) {
         diagnostics.insert(diagnostic);
     }
 
@@ -191,6 +190,10 @@ public:
         report.print(out);
         return out;
     }
+
+private:
+    std::set<Diagnostic> diagnostics;
+    bool nowarn;
 };
 
 }  // end of namespace souffle

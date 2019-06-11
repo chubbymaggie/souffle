@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <iterator>
+
 namespace souffle {
 
 /**
@@ -90,10 +92,10 @@ template <typename T>
 class SingleValueIterator : public std::iterator<std::forward_iterator_tag, T> {
     T value;
 
-    bool end;
+    bool end = true;
 
 public:
-    SingleValueIterator() : end(true) {}
+    SingleValueIterator() = default;
 
     SingleValueIterator(const T& value) : value(value), end(false) {}
 

@@ -15,11 +15,14 @@
  ***********************************************************************/
 
 #pragma once
+
 #include <atomic>
+#include <cassert>
+#include <csignal>
+#include <cstring>
 #include <iostream>
+#include <mutex>
 #include <string>
-#include <assert.h>
-#include <signal.h>
 
 namespace souffle {
 
@@ -29,48 +32,6 @@ namespace souffle {
  * The signal handler is implemented as a singleton.
  */
 class SignalHandler {
-private:
-    // signal context information
-    std::atomic<const char*> msg;
-
-    // state of signal handler
-    bool isSet;
-
-    // previous signal handler routines
-    void (*prevFpeHandler)(int);
-    void (*prevIntHandler)(int);
-    void (*prevSegVHandler)(int);
-
-    /**
-     * Signal handler for various types of signals.
-     */
-    static void handler(int signal) {
-        const char* msg = instance()->msg;
-        std::string error;
-        switch (signal) {
-            case SIGINT:
-                error = "Interrupt";
-                break;
-            case SIGFPE:
-                error = "Floating-point arithmetic exception";
-                break;
-            case SIGSEGV:
-                error = "Segmentation violation";
-                break;
-            default:
-                error = "Unknown";
-                break;
-        }
-        if (msg != nullptr) {
-            std::cerr << error << " signal in rule:\n" << msg << std::endl;
-        } else {
-            std::cerr << error << " signal." << std::endl;
-        }
-        exit(1);
-    }
-
-    SignalHandler() : msg(nullptr), isSet(false) {}
-
 public:
     // get singleton
     static SignalHandler* instance() {
@@ -78,8 +39,33 @@ public:
         return &singleton;
     }
 
+    // Enable logging
+    void enableLogging() {
+        logMessages = true;
+    }
     // set signal message
     void setMsg(const char* m) {
+        if (logMessages && m != nullptr) {
+            static std::mutex outputMutex;
+            static bool sameLine = false;
+            std::lock_guard<std::mutex> guard(outputMutex);
+            if (msg != nullptr && strcmp(m, msg) == 0) {
+                std::cout << ".";
+                sameLine = true;
+            } else {
+                if (sameLine) {
+                    sameLine = false;
+                    std::cout << std::endl;
+                }
+                std::string outputMessage(m);
+                for (char& c : outputMessage) {
+                    if (c == '\n' || c == '\t') {
+                        c = ' ';
+                    }
+                }
+                std::cout << "Starting work on " << outputMessage << std::endl;
+            }
+        }
         msg = m;
     }
 
@@ -87,7 +73,7 @@ public:
      * set signal handlers
      */
     void set() {
-        if (!isSet) {
+        if (!isSet && std::getenv("SOUFFLE_ALLOW_SIGNALS") == nullptr) {
             // register signals
             // floating point exception
             if ((prevFpeHandler = signal(SIGFPE, handler)) == SIG_ERR) {
@@ -144,6 +130,50 @@ public:
         }
         exit(1);
     }
+
+private:
+    // signal context information
+    std::atomic<const char*> msg;
+
+    // state of signal handler
+    bool isSet = false;
+
+    bool logMessages = false;
+
+    // previous signal handler routines
+    void (*prevFpeHandler)(int) = nullptr;
+    void (*prevIntHandler)(int) = nullptr;
+    void (*prevSegVHandler)(int) = nullptr;
+
+    /**
+     * Signal handler for various types of signals.
+     */
+    static void handler(int signal) {
+        const char* msg = instance()->msg;
+        std::string error;
+        switch (signal) {
+            case SIGINT:
+                error = "Interrupt";
+                break;
+            case SIGFPE:
+                error = "Floating-point arithmetic exception";
+                break;
+            case SIGSEGV:
+                error = "Segmentation violation";
+                break;
+            default:
+                error = "Unknown";
+                break;
+        }
+        if (msg != nullptr) {
+            std::cerr << error << " signal in rule:\n" << msg << std::endl;
+        } else {
+            std::cerr << error << " signal." << std::endl;
+        }
+        exit(1);
+    }
+
+    SignalHandler() : msg(nullptr) {}
 };
 
 }  // namespace souffle

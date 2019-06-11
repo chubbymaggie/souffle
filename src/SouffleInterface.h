@@ -23,9 +23,10 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
-#include <assert.h>
+#include <cassert>
 
 namespace souffle {
 
@@ -48,7 +49,7 @@ protected:
             return id;
         }
         iterator_base(uint32_t arg_id) : id(arg_id) {}
-        virtual ~iterator_base() {}
+        virtual ~iterator_base() = default;
         virtual void operator++() = 0;
         virtual tuple& operator*() = 0;
         bool operator==(const iterator_base& o) const {
@@ -61,15 +62,15 @@ protected:
     };
 
 public:
-    virtual ~Relation() {}
+    virtual ~Relation() = default;
 
     // wrapper class for abstract iterator
     class iterator {
     protected:
-        iterator_base* iter;
+        iterator_base* iter = nullptr;
 
     public:
-        iterator() : iter(nullptr) {}
+        iterator() = default;
         iterator(iterator_base* arg) : iter(arg) {}
         ~iterator() {
             delete iter;
@@ -106,11 +107,9 @@ public:
     virtual iterator end() const = 0;
 
     // number of tuples in relation
-    virtual std::size_t size() = 0;
+    virtual std::size_t size() const = 0;
 
     // properties
-    virtual bool isOutput() const = 0;
-    virtual bool isInput() const = 0;
     virtual std::string getName() const = 0;
     virtual const char* getAttrType(size_t) const = 0;
     virtual const char* getAttrName(size_t) const = 0;
@@ -124,6 +123,9 @@ public:
         signature += ">";
         return signature;
     }
+
+    // Eliminate all the tuples in relation
+    virtual void purge() = 0;
 };
 
 /**
@@ -142,7 +144,7 @@ public:
     /**
      * allows printing using WriteStream
      */
-    const RamDomain* data;
+    const RamDomain* data = nullptr;
 
     /**
      * return number of elements in the tuple
@@ -178,7 +180,7 @@ public:
     tuple& operator<<(const std::string& str) {
         assert(pos < size() && "exceeded tuple's size");
         assert(*relation.getAttrType(pos) == 's' && "wrong element type");
-        array[pos++] = relation.getSymbolTable().lookup(str.c_str());
+        array[pos++] = relation.getSymbolTable().lookup(str);
         return *this;
     }
 
@@ -256,13 +258,14 @@ protected:
     }
 
 public:
-    virtual ~SouffleProgram() {}
+    virtual ~SouffleProgram() = default;
 
     // execute program, without any loads or stores
-    virtual void run() {}
+    virtual void run(size_t stratumIndex = -1) {}
 
     // execute program, loading inputs and storing outputs as requires
-    virtual void runAll(std::string inputDirectory = ".", std::string outputDirectory = ".") = 0;
+    virtual void runAll(std::string inputDirectory = ".", std::string outputDirectory = ".",
+            size_t stratumIndex = -1) = 0;
 
     // load all input relations
     virtual void loadAll(std::string inputDirectory = ".") = 0;
@@ -308,7 +311,22 @@ public:
 
     virtual void executeSubroutine(std::string name, const std::vector<RamDomain>& args,
             std::vector<RamDomain>& ret, std::vector<bool>& retErr) {}
-    virtual const SymbolTable& getSymbolTable() const = 0;
+    virtual SymbolTable& getSymbolTable() = 0;
+
+    // remove all the facts from the output relations
+    void purgeOutputRelations() {
+        for (Relation* relation : outputRelations) relation->purge();
+    }
+
+    // remove all the facts from the input relations
+    void purgeInputRelations() {
+        for (Relation* relation : inputRelations) relation->purge();
+    }
+
+    // remove all the facts from the internal relations
+    void purgeInternalRelations() {
+        for (Relation* relation : internalRelations) relation->purge();
+    }
 };
 
 /**
@@ -321,15 +339,17 @@ protected:
     // to static initialization order fiasco. The static
     // container needs to be a primitive type such as pointer
     // set to NULL.
-    ProgramFactory* link;  // link to next factory
-    std::string name;      // name of factory
+    // link to next factory
+    ProgramFactory* link = nullptr;
+    // name of factory
+    std::string name;
 
 protected:
     /**
      * Constructor adds factory to static singly-linked list
      * for registration.
      */
-    ProgramFactory(const std::string& name) : name(name) {
+    ProgramFactory(std::string name) : name(std::move(name)) {
         registerFactory(this);
     }
 
@@ -361,7 +381,7 @@ protected:
     virtual SouffleProgram* newInstance() = 0;
 
 public:
-    virtual ~ProgramFactory() {}
+    virtual ~ProgramFactory() = default;
 
     /**
      * Create instance

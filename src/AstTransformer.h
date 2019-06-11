@@ -13,8 +13,10 @@
  * Defines the interface for AST transformation passes.
  *
  ***********************************************************************/
+
 #pragma once
 
+#include <set>
 #include <string>
 
 namespace souffle {
@@ -47,8 +49,30 @@ public:
     /* Enable high verbosity */
     virtual void setVerbosity(bool verbose) = 0;
 
+    /* Disable subtransformers */
+    virtual void disableTransformers(const std::set<std::string>& transforms) = 0;
+
     /* Apply a nested transformer */
     bool applySubtransformer(AstTranslationUnit& translationUnit, AstTransformer* transformer);
+};
+
+/**
+ * Transformer that does absolutely nothing
+ */
+class NullTransformer : public MetaTransformer {
+private:
+    bool transform(AstTranslationUnit& translationUnit) override;
+
+public:
+    void setDebugReport() override {}
+
+    void setVerbosity(bool verbose) override {}
+
+    void disableTransformers(const std::set<std::string>& transforms) override {}
+
+    std::string getName() const override {
+        return "NullTransformer";
+    }
 };
 
 }  // end of namespace souffle

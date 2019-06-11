@@ -17,29 +17,36 @@
 #pragma once
 
 #include "AstTransformer.h"
+#include <string>
 
 namespace souffle {
 
 class AstComponent;
-class AstComponentScope;
 class AstComponentType;
 class AstComponentInit;
 class AstProgram;
-class AstSrcLocation;
+class SrcLocation;
 class AstTranslationUnit;
 class ComponentLookup;
 class ErrorReport;
 class TypeBinding;
 
 class AstComponentChecker : public AstTransformer {
+public:
+    ~AstComponentChecker() override = default;
+
+    std::string getName() const override {
+        return "AstComponentChecker";
+    }
+
 private:
     bool transform(AstTranslationUnit& translationUnit) override;
 
     static const AstComponent* checkComponentNameReference(ErrorReport& report,
             const AstComponent* enclosingComponent, const ComponentLookup& componentLookup,
-            const std::string& name, const AstSrcLocation& loc, const TypeBinding& binding);
+            const std::string& name, const SrcLocation& loc, const TypeBinding& binding);
     static void checkComponentReference(ErrorReport& report, const AstComponent* enclosingComponent,
-            const ComponentLookup& componentLookup, const AstComponentType& type, const AstSrcLocation& loc,
+            const ComponentLookup& componentLookup, const AstComponentType& type, const SrcLocation& loc,
             const TypeBinding& binding);
     static void checkComponentInit(ErrorReport& report, const AstComponent* enclosingComponent,
             const ComponentLookup& componentLookup, const AstComponentInit& init, const TypeBinding& binding);
@@ -49,12 +56,6 @@ private:
     static void checkComponents(
             ErrorReport& report, const AstProgram& program, const ComponentLookup& componentLookup);
     static void checkComponentNamespaces(ErrorReport& report, const AstProgram& program);
-
-public:
-    ~AstComponentChecker() override = default;
-
-    std::string getName() const override {
-        return "AstComponentChecker";
-    }
 };
-}
+
+}  // namespace souffle

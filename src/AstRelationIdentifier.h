@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace souffle {
@@ -32,17 +33,14 @@ namespace souffle {
  *
  */
 class AstRelationIdentifier {
-    /**
-     * The list of names forming this identifier.
-     */
-    std::vector<std::string> names;
-
 public:
     // -- constructors --
 
     AstRelationIdentifier(const std::string& name = "") : names(toVector(name)) {}
 
     AstRelationIdentifier(const char* name) : AstRelationIdentifier(std::string(name)) {}
+
+    AstRelationIdentifier(std::vector<std::string> names) : names(std::move(names)) {}
 
     AstRelationIdentifier(const AstRelationIdentifier&) = default;
     AstRelationIdentifier(AstRelationIdentifier&&) = default;
@@ -68,6 +66,12 @@ public:
         return names;
     }
 
+    std::string getName() const {
+        std::stringstream ss;
+        ss << join(names, ".");
+        return ss.str();
+    }
+
     // -- comparison operators --
 
     bool operator==(const AstRelationIdentifier& other) const {
@@ -91,6 +95,10 @@ public:
         id.print(out);
         return out;
     }
+
+public:
+    /** The list of names forming this identifier. */
+    std::vector<std::string> names;
 };
 
 /**

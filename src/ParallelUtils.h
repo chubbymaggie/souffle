@@ -44,14 +44,15 @@
 #define task_sync
 
 // section start / end => corresponding OpenMP pragmas
-#define SECTIONS_START _Pragma("omp parallel sections") {
-//    #define SECTIONS_START {        // NOTE: we stick to flat-level parallelism since it is faster du to
-//    thread pooling
+// NOTE: disabled since it causes performance losses
+//#define SECTIONS_START _Pragma("omp parallel sections") {
+// NOTE: we stick to flat-level parallelism since it is faster due to thread pooling
+#define SECTIONS_START {
 #define SECTIONS_END }
 
 // the markers for a single section
-#define SECTION_START _Pragma("omp section") {
-//    #define SECTION_START {
+//#define SECTION_START _Pragma("omp section") {
+#define SECTION_START {
 #define SECTION_END }
 
 // a macro to create an operation context
@@ -131,6 +132,12 @@
 #endif
 
 #ifdef IS_PARALLEL
+#define MAX_THREADS (omp_get_max_threads())
+#else
+#define MAX_THREADS (1)
+#endif
+
+#ifdef IS_PARALLEL
 
 #include <mutex>
 
@@ -185,16 +192,20 @@ public:
 namespace detail {
 
 /* Pause instruction to prevent excess processor bus usage */
+#ifdef __x86_64__
 #define cpu_relax() asm volatile("pause\n" : : : "memory")
+#else
+#define cpu_relax() asm volatile("" : : : "memory")
+#endif
 
 /**
  * A utility class managing waiting operations for spin locks.
  */
 class Waiter {
-    int i;
+    int i = 0;
 
 public:
-    Waiter() : i(0) {}
+    Waiter() = default;
 
     /**
      * Conducts a wait operation.
@@ -214,10 +225,10 @@ public:
 
 /* compare: http://en.cppreference.com/w/cpp/atomic/atomic_flag */
 class SpinLock {
-    std::atomic<int> lck;
+    std::atomic<int> lck{0};
 
 public:
-    SpinLock() : lck(0) {}
+    SpinLock() = default;
 
     void lock() {
         detail::Waiter wait;
@@ -253,10 +264,10 @@ class ReadWriteLock {
      *      +-------------------------+--------------------+--------------------+
      */
 
-    std::atomic<int> lck;
+    std::atomic<int> lck{0};
 
 public:
-    ReadWriteLock() : lck(0) {}
+    ReadWriteLock() = default;
 
     void start_read() {
         // add reader
@@ -331,7 +342,7 @@ class OptimisticReadWriteLock {
      *      - even version numbers are stable versions, not being updated
      *      - odd version numbers are temporary versions, currently being updated
      */
-    std::atomic<int> version;
+    std::atomic<int> version{0};
 
 public:
     /**
@@ -351,7 +362,7 @@ public:
     /**
      * A default constructor initializing the lock.
      */
-    OptimisticReadWriteLock() : version(0) {}
+    OptimisticReadWriteLock() = default;
 
     /**
      * Starts a read phase, making sure that there is currently no
@@ -385,7 +396,8 @@ public:
      */
     bool validate(const Lease& lease) {
         // check whether version number has changed in the mean-while
-        return lease.version == version.load(std::memory_order_consume);
+        std::atomic_thread_fence(std::memory_order_acquire);
+        return lease.version == version.load(std::memory_order_relaxed);
     }
 
     /**
@@ -483,8 +495,6 @@ public:
         return version & 0x1;
     }
 };
-
-}  // end of namespace souffle
 
 #else
 
@@ -589,6 +599,14 @@ public:
     }
 };
 
-}  // end of namespace souffle
-
 #endif
+
+/**
+ * Obtains a reference to the lock synchronizing output operations.
+ */
+inline Lock& getOutputLock() {
+    static Lock outputLock;
+    return outputLock;
+}
+
+}  // end of namespace souffle

@@ -1,7 +1,20 @@
-.type Int
+/*
+ * Souffle - A Datalog Compiler
+ * Copyright (c) 2019 The Souffle Developers. All Rights reserved
+ * Licensed under the Universal Permissive License v 1.0 as shown at:
+ * - https://opensource.org/licenses/UPL
+ * - <souffle root>/licenses/SOUFFLE-UPL.txt
+ */
 
-.decl Fact(x:Int)
+.symbol_type s
 
-Fact("baz ").   // white space are ok,
-Fact("baz	"). // but tabs, newlines and
-                // unprintable characters are not
+.decl Fact(x:s)
+
+// Check whitespace is accepted
+Fact("baz ").
+Fact("baz	").
+// Check escaping of quotes and escapes
+Fact("\\").
+Fact("\\\"").
+
+.printsize Fact

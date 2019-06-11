@@ -99,7 +99,7 @@ class RecordMap {
     Lock pack_lock;
 
 public:
-    RecordMap() {}
+    RecordMap() = default;
 
     /**
      * Packs the given tuple -- and may create a new reference if necessary.
@@ -147,6 +147,21 @@ public:
     const tuple_type& unpack(RamDomain index) {
         // just look up the right spot
         return (*(i2r[index / BLOCK_SIZE]))[index % BLOCK_SIZE];
+    }
+};
+
+/**
+ * Specialisation for empty records
+ */
+template <>
+class RecordMap<ram::Tuple<RamDomain, 0>> {
+public:
+    RamDomain pack(const ram::Tuple<RamDomain, 0>& tuple) {
+        return 1;
+    }
+    const ram::Tuple<RamDomain, 0>& unpack(RamDomain index) {
+        static ram::Tuple<RamDomain, 0> empty;
+        return empty;
     }
 };
 

@@ -13,9 +13,10 @@
  * Defines an interface for AST analysis
  *
  ***********************************************************************/
+
 #pragma once
 
-#include <iostream>
+#include <ostream>
 
 namespace souffle {
 

@@ -17,15 +17,17 @@
 #include "DebugReport.h"
 #include "AstTranslationUnit.h"
 #include "AstTypeAnalysis.h"
-#include "MagicSet.h"
+#include "AstTypeEnvironmentAnalysis.h"
 #include "PrecedenceGraph.h"
-
+#include <chrono>
 #include <cstdio>
+#include <ostream>
 #include <sstream>
+#include <utility>
 
 namespace souffle {
 
-static std::string toBase64(std::string data) {
+static std::string toBase64(const std::string& data) {
     static const std::vector<char> table = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
             'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
             'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y',
@@ -43,9 +45,9 @@ static std::string toBase64(std::string data) {
         tmp.push_back(0);
     }
     for (unsigned int i = 0; i < tmp.size(); i += 3) {
-        unsigned char c1 = static_cast<unsigned char>(tmp[i]);
-        unsigned char c2 = static_cast<unsigned char>(tmp[i + 1]);
-        unsigned char c3 = static_cast<unsigned char>(tmp[i + 2]);
+        auto c1 = static_cast<unsigned char>(tmp[i]);
+        auto c2 = static_cast<unsigned char>(tmp[i + 1]);
+        auto c3 = static_cast<unsigned char>(tmp[i + 2]);
         unsigned char index1 = c1 >> 2;
         unsigned char index2 = ((c1 & 0x03) << 4) | (c2 >> 4);
         unsigned char index3 = ((c2 & 0x0F) << 2) | (c3 >> 6);
@@ -148,9 +150,9 @@ void DebugReport::print(std::ostream& out) const {
     out << "</html>\n";
 }
 
-DebugReportSection DebugReporter::getCodeSection(std::string id, std::string title, std::string code) {
+DebugReportSection DebugReporter::getCodeSection(const std::string& id, std::string title, std::string code) {
     std::stringstream codeHTML;
-    std::string escapedCode = code;
+    std::string escapedCode = std::move(code);
     while (true) {
         size_t i = escapedCode.find("<");
         if (i == std::string::npos) {
@@ -159,17 +161,21 @@ DebugReportSection DebugReporter::getCodeSection(std::string id, std::string tit
         escapedCode.replace(i, 1, "&lt;");
     }
     codeHTML << "<pre>" << escapedCode << "</pre>\n";
-    return DebugReportSection(id, title, {}, codeHTML.str());
+    return DebugReportSection(id, std::move(title), {}, codeHTML.str());
 }
 
-DebugReportSection DebugReporter::getDotGraphSection(std::string id, std::string title, std::string dotSpec) {
-    std::stringstream cmd;
-    cmd << "dot -Tsvg <<END_DOT_FILE\n";
-    cmd << dotSpec << "\n";
-    cmd << "END_DOT_FILE\n";
-    FILE* in = popen(cmd.str().c_str(), "r");
+DebugReportSection DebugReporter::getDotGraphSection(
+        const std::string& id, std::string title, const std::string& dotSpec) {
+    std::string tempFileName = tempFile();
+    {
+        std::ofstream dotFile(tempFileName);
+        dotFile << dotSpec;
+    }
+
+    std::string cmd = "dot -Tsvg < " + tempFileName;
+    FILE* in = popen(cmd.c_str(), "r");
     std::stringstream data;
-    while (true) {
+    while (in != nullptr) {
         char c = fgetc(in);
         if (feof(in)) {
             break;
@@ -177,6 +183,8 @@ DebugReportSection DebugReporter::getDotGraphSection(std::string id, std::string
         data << c;
     }
     pclose(in);
+    remove(tempFileName.c_str());
+
     std::stringstream graphHTML;
     if (data.str().find("<svg") != std::string::npos) {
         graphHTML << "<img alt='graph image' src='data:image/svg+xml;base64," << toBase64(data.str())
@@ -190,7 +198,7 @@ DebugReportSection DebugReporter::getDotGraphSection(std::string id, std::string
               << "' style='display:none'>\n";
     graphHTML << "<pre>" << dotSpec << "</pre>\n";
     graphHTML << "</div>\n";
-    return DebugReportSection(id, title, {}, graphHTML.str());
+    return DebugReportSection(id, std::move(title), {}, graphHTML.str());
 }
 
 bool DebugReporter::transform(AstTranslationUnit& translationUnit) {
@@ -209,7 +217,7 @@ bool DebugReporter::transform(AstTranslationUnit& translationUnit) {
 }
 
 void DebugReporter::generateDebugReport(
-        AstTranslationUnit& translationUnit, std::string id, std::string title) {
+        AstTranslationUnit& translationUnit, const std::string& id, std::string title) {
     std::stringstream datalogSpec;
     translationUnit.getProgram()->print(datalogSpec);
 
@@ -218,6 +226,11 @@ void DebugReporter::generateDebugReport(
     std::stringstream typeAnalysis;
     translationUnit.getAnalysis<TypeAnalysis>()->print(typeAnalysis);
     DebugReportSection typeAnalysisSection = getCodeSection(id + "-ta", "Type Analysis", typeAnalysis.str());
+
+    std::stringstream typeEnvironmentAnalysis;
+    translationUnit.getAnalysis<TypeEnvironmentAnalysis>()->print(typeEnvironmentAnalysis);
+    DebugReportSection typeEnvironmentAnalysisSection =
+            getCodeSection(id + "-tea", "Type Environment Analysis", typeEnvironmentAnalysis.str());
 
     std::stringstream precGraphDot;
     translationUnit.getAnalysis<PrecedenceGraph>()->print(precGraphDot);
@@ -234,9 +247,9 @@ void DebugReporter::generateDebugReport(
     DebugReportSection topsortSCCGraphSection =
             getCodeSection(id + "-topsort-scc-graph", "SCC Topological Sort Order", topsortSCCGraph.str());
 
-    translationUnit.getDebugReport().addSection(DebugReportSection(id, title,
-            {datalogSection, typeAnalysisSection, precedenceGraphSection, sccGraphSection,
-                    topsortSCCGraphSection},
+    translationUnit.getDebugReport().addSection(DebugReportSection(id, std::move(title),
+            {datalogSection, typeAnalysisSection, typeEnvironmentAnalysisSection, precedenceGraphSection,
+                    sccGraphSection, topsortSCCGraphSection},
             ""));
 }
 

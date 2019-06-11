@@ -17,18 +17,12 @@
 
 #include "AstClause.h"
 #include "AstLiteral.h"
-#include "AstProgram.h"
-#include "AstRelation.h"
 #include "AstVisitor.h"
-
-#include <set>
-#include <sstream>
-#include <string>
-
-#include <stdlib.h>
-#include <string.h>
+#include <algorithm>
 
 namespace souffle {
+
+class AstAggregator;
 
 /*
  * Clause
@@ -37,11 +31,13 @@ namespace souffle {
 /* Add literal to body */
 void AstClause::addToBody(std::unique_ptr<AstLiteral> l) {
     if (dynamic_cast<AstAtom*>(l.get())) {
-        atoms.push_back(std::unique_ptr<AstAtom>(static_cast<AstAtom*>(l.release())));
+        atoms.emplace_back(static_cast<AstAtom*>(l.release()));
     } else if (dynamic_cast<AstNegation*>(l.get())) {
-        negations.push_back(std::unique_ptr<AstNegation>(static_cast<AstNegation*>(l.release())));
+        negations.emplace_back(static_cast<AstNegation*>(l.release()));
+    } else if (dynamic_cast<AstProvenanceNegation*>(l.get())) {
+        provNegations.emplace_back(static_cast<AstProvenanceNegation*>(l.release()));
     } else if (dynamic_cast<AstConstraint*>(l.get())) {
-        constraints.push_back(std::unique_ptr<AstConstraint>(static_cast<AstConstraint*>(l.release())));
+        constraints.emplace_back(static_cast<AstConstraint*>(l.release()));
     } else {
         assert(false && "Unsupported literal type!");
     }
@@ -49,7 +45,7 @@ void AstClause::addToBody(std::unique_ptr<AstLiteral> l) {
 
 /* Set the head of clause to h */
 void AstClause::setHead(std::unique_ptr<AstAtom> h) {
-    ASSERT(!head && "Head is already set");
+    assert(!head && "Head is already set");
     head = std::move(h);
 }
 
@@ -62,6 +58,10 @@ AstLiteral* AstClause::getBodyLiteral(size_t idx) const {
         return negations[idx].get();
     }
     idx -= negations.size();
+    if (idx < provNegations.size()) {
+        return provNegations[idx].get();
+    }
+    idx -= provNegations.size();
     return constraints[idx].get();
 }
 
@@ -71,6 +71,9 @@ std::vector<AstLiteral*> AstClause::getBodyLiterals() const {
         res.push_back(cur.get());
     }
     for (auto& cur : negations) {
+        res.push_back(cur.get());
+    }
+    for (auto& cur : provNegations) {
         res.push_back(cur.get());
     }
     for (auto& cur : constraints) {

@@ -1,3 +1,19 @@
+/*
+ * Souffle - A Datalog Compiler
+ * Copyright (c) 2017 The Souffle Developers. All Rights reserved
+ * Licensed under the Universal Permissive License v 1.0 as shown at:
+ * - https://opensource.org/licenses/UPL
+ * - <souffle root>/licenses/SOUFFLE-UPL.txt
+ */
+
+/************************************************************************
+ *
+ * @file StringPool.h
+ *
+ * Defines a string pool
+ *
+ ***********************************************************************/
+
 #pragma once
 #include <iostream>
 
@@ -12,35 +28,6 @@ namespace souffle {
 #define SLOOKUP(s) StringPool::instance()->lookup(s)
 
 class StringPool {
-    /* Hash table */
-    struct hashentry {
-        char* str;
-        hashentry* next;
-        hashentry(char* s = nullptr, struct hashentry* n = NULL) : str(s), next(n) {}
-    };
-    static hashentry* hashtab[HASH_SIZE];
-
-    /* Hash function */
-    inline size_t hash(const char* str) {
-        size_t hash = 5381;
-        int c;
-        while ((c = *str++) != 0) {
-            hash = ((hash << 5) + hash) + c;
-        }
-        return hash % HASH_SIZE;
-    }
-
-    ~StringPool() {
-        for (size_t i = 0; i < HASH_SIZE; i++) {
-            hashentry* q;
-            for (hashentry* p = hashtab[i]; p != nullptr; p = q) {
-                q = p->next;
-                free(p->str);
-                delete p;
-            }
-        }
-    }
-
 public:
     static StringPool* instance() {
         static StringPool singleton;
@@ -71,6 +58,36 @@ public:
         }
 
         return res;
+    }
+
+private:
+    /* Hash table */
+    struct hashentry {
+        char* str;
+        hashentry* next;
+        hashentry(char* s = nullptr, struct hashentry* n = NULL) : str(s), next(n) {}
+    };
+    static hashentry* hashtab[HASH_SIZE];
+
+    /* Hash function */
+    inline size_t hash(const char* str) {
+        size_t hash = 5381;
+        int c;
+        while ((c = *str++) != 0) {
+            hash = ((hash << 5) + hash) + c;
+        }
+        return hash % HASH_SIZE;
+    }
+
+    ~StringPool() {
+        for (size_t i = 0; i < HASH_SIZE; i++) {
+            hashentry* q;
+            for (hashentry* p = hashtab[i]; p != nullptr; p = q) {
+                q = p->next;
+                free(p->str);
+                delete p;
+            }
+        }
     }
 };
 

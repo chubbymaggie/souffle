@@ -68,51 +68,65 @@ protected:
      */
     size_t num_jobs;
 
+    /**
+     * index of stratum to be executed
+     */
+    size_t stratumIndex;
+
 public:
     // all argument constructor
-    CmdOptions(const char* s, const char* id, const char* od, bool pe, const char* pfn, size_t nj)
-            : src(s), input_dir(id), output_dir(od), profiling(pe), profile_name(pfn), num_jobs(nj) {}
+    CmdOptions(const char* s, const char* id, const char* od, bool pe, const char* pfn, size_t nj,
+            size_t si = (size_t)-1)
+            : src(s), input_dir(id), output_dir(od), profiling(pe), profile_name(pfn), num_jobs(nj),
+              stratumIndex(si) {}
 
     /**
      * get source code name
      */
-    const std::string& getSourceFileName() {
+    const std::string& getSourceFileName() const {
         return src;
     }
 
     /**
      * get input directory
      */
-    const std::string& getInputFileDir() {
+    const std::string& getInputFileDir() const {
         return input_dir;
     }
 
     /**
      * get output directory
      */
-    const std::string& getOutputFileDir() {
+    const std::string& getOutputFileDir() const {
         return output_dir;
     }
 
     /**
      * is profiling switched on
      */
-    bool isProfiling() {
+    bool isProfiling() const {
         return profiling;
     }
 
     /**
      * get filename of profile
      */
-    const std::string& getProfileName() {
+    const std::string& getProfileName() const {
         return profile_name;
     }
 
     /**
      * get number of jobs
      */
-    size_t& getNumJobs() {
+    size_t getNumJobs() const {
         return num_jobs;
+    }
+
+    /**
+     * get index of stratum to be executed
+     */
+    size_t getStratumIndex() const {
+        return stratumIndex;
     }
 
     /**
@@ -135,10 +149,7 @@ public:
 #pragma GCC diagnostic ignored "-Wwrite-strings"
         // long options
         option longOptions[] = {{"facts", true, nullptr, 'F'}, {"output", true, nullptr, 'D'},
-                {"profile", true, nullptr, 'p'},
-#ifdef _OPENMP
-                {"jobs", true, nullptr, 'j'},
-#endif
+                {"profile", true, nullptr, 'p'}, {"jobs", true, nullptr, 'j'}, {"index", true, nullptr, 'i'},
                 // the terminal option -- needs to be null
                 {nullptr, false, nullptr, 0}};
 #pragma GCC diagnostic pop
@@ -147,7 +158,7 @@ public:
         bool ok = true;
 
         int c; /* command-line arguments processing */
-        while ((c = getopt_long(argc, argv, "D:F:hp:j:", longOptions, nullptr)) != EOF) {
+        while ((c = getopt_long(argc, argv, "D:F:hp:j:i:", longOptions, nullptr)) != EOF) {
             switch (c) {
                 /* Fact directories */
                 case 'F':
@@ -167,14 +178,14 @@ public:
                     break;
                 case 'p':
                     if (!profiling) {
-                        std::cerr << "\nerror: profiling was not enabled in compilation\n\n";
+                        std::cerr << "\nError: profiling was not enabled in compilation\n\n";
                         printHelpPage(exec_name);
                         exit(1);
                     }
                     profile_name = optarg;
                     break;
-#ifdef _OPENMP
                 case 'j':
+#ifdef _OPENMP
                     if (std::string(optarg) == "auto") {
                         num_jobs = 0;
                     } else {
@@ -186,16 +197,16 @@ public:
                             ok = false;
                         }
                     }
-                    break;
 #else
-                case 'j':
+                    std::cerr << "\nWarning: OpenMP was not enabled in compilation\n\n";
 #endif
-                case 'h':
-                case '?':
+                    break;
+                case 'i':
+                    stratumIndex = (size_t)std::stoull(optarg);
+                    break;
+                default:
                     printHelpPage(exec_name);
                     return false;
-                default:
-                    ASSERT("Default label in getopt switch");
             }
         }
 
@@ -239,6 +250,8 @@ private:
             std::cerr << "                                    (default: auto)\n";
         }
 #endif
+        std::cerr << "    -i <N>, --index=<N>          -- Specify index of stratum to be executed\n";
+        std::cerr << "                                    (or each in order if omitted)\n";
         std::cerr << "    -h                           -- prints this help page.\n";
         std::cerr << "--------------------------------------------------------------------\n";
         std::cerr << " Copyright (c) 2016 Oracle and/or its affiliates.\n";
@@ -249,7 +262,7 @@ private:
     /**
      *  Check whether a file exists in the file system
      */
-    inline bool existFile(const std::string& name) {
+    inline bool existFile(const std::string& name) const {
         struct stat buffer;
         if (stat(name.c_str(), &buffer) == 0) {
             if ((buffer.st_mode & S_IFREG) != 0) {
@@ -262,7 +275,7 @@ private:
     /**
      *  Check whether a directory exists in the file system
      */
-    bool existDir(const std::string& name) {
+    bool existDir(const std::string& name) const {
         struct stat buffer;
         if (stat(name.c_str(), &buffer) == 0) {
             if ((buffer.st_mode & S_IFDIR) != 0) {

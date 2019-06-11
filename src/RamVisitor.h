@@ -18,14 +18,16 @@
 #pragma once
 
 #include "RamCondition.h"
+#include "RamExpression.h"
 #include "RamNode.h"
 #include "RamOperation.h"
+#include "RamProgram.h"
 #include "RamRelation.h"
 #include "RamStatement.h"
-#include "RamValue.h"
 
 #include <functional>
 #include <typeinfo>
+#include <utility>
 #include <vector>
 
 namespace souffle {
@@ -62,68 +64,92 @@ struct RamVisitor : public ram_visitor_tag {
      * a visit to the various sub-types of RamNodes. Sub-classes may override
      * this implementation to conduct pre-visit operations.
      *
+     * Note that the order of this list is important. Sub-classes must be listed
+     * before their super-classes; otherwise sub-classes cannot be visited.
+     *
      * @param node the node to be visited
      * @param args a list of extra parameters to be forwarded
      */
     virtual R visit(const RamNode& node, Params... args) {
         // dispatch node processing based on dynamic type
 
-        switch (node.getNodeType()) {
 #define FORWARD(Kind) \
-    case (RN_##Kind): \
-        return visit##Kind(static_cast<const Ram##Kind&>(node), args...);
-            // Relation
-            FORWARD(Relation);
-            FORWARD(RelationRef);
+    if (const auto* n = dynamic_cast<const Ram##Kind*>(&node)) return visit##Kind(*n, args...);
 
-            // values
-            FORWARD(ElementAccess);
-            FORWARD(Number);
-            FORWARD(UnaryOperator);
-            FORWARD(BinaryOperator);
-            FORWARD(TernaryOperator);
-            FORWARD(AutoIncrement);
-            FORWARD(Pack);
-            FORWARD(Argument);
+        // Relation
+        FORWARD(Relation);
+        FORWARD(RelationReference);
 
-            // conditions
-            FORWARD(Empty);
-            FORWARD(NotExists);
-            FORWARD(And);
-            FORWARD(BinaryRelation);
+        // Expressions
+        FORWARD(TupleElement);
+        FORWARD(Number);
+        FORWARD(IntrinsicOperator);
+        FORWARD(UserDefinedOperator);
+        FORWARD(AutoIncrement);
+        FORWARD(PackRecord);
+        FORWARD(SubroutineArgument);
+        FORWARD(UndefValue);
 
-            // operations
-            FORWARD(Project);
-            FORWARD(Return);
-            FORWARD(Lookup);
-            FORWARD(Scan);
-            FORWARD(Aggregate);
+        // Conditions
+        FORWARD(True);
+        FORWARD(False);
+        FORWARD(EmptinessCheck);
+        FORWARD(ExistenceCheck);
+        FORWARD(ProvenanceExistenceCheck);
+        FORWARD(Conjunction);
+        FORWARD(Negation);
+        FORWARD(Constraint);
 
-            // statements
-            FORWARD(Create);
-            FORWARD(Fact);
-            FORWARD(Load);
-            FORWARD(Store);
-            FORWARD(Insert);
-            FORWARD(Clear);
-            FORWARD(Drop);
-            FORWARD(PrintSize);
-            FORWARD(LogSize);
+        // Operations
+        FORWARD(Filter);
+        FORWARD(Break);
+        FORWARD(Project);
+        FORWARD(SubroutineReturnValue);
+        FORWARD(UnpackRecord);
+        FORWARD(ParallelScan);
+        FORWARD(Scan);
+        FORWARD(ParallelIndexScan);
+        FORWARD(IndexScan);
+        FORWARD(ParallelChoice);
+        FORWARD(Choice);
+        FORWARD(ParallelIndexChoice);
+        FORWARD(IndexChoice);
+        FORWARD(Aggregate);
+        FORWARD(IndexAggregate);
 
-            FORWARD(Merge);
-            FORWARD(Swap);
+        // Statements
+        FORWARD(Create);
+        FORWARD(Fact);
+        FORWARD(Load);
+        FORWARD(Store);
+        FORWARD(Query);
+        FORWARD(Clear);
+        FORWARD(Drop);
+        FORWARD(LogSize);
 
-            // control flow
-            FORWARD(Program);
-            FORWARD(Sequence);
-            FORWARD(Loop);
-            FORWARD(Parallel);
-            FORWARD(Exit);
-            FORWARD(LogTimer);
-            FORWARD(DebugInfo);
+        FORWARD(Merge);
+        FORWARD(Swap);
+
+        // Control-flow
+        FORWARD(Program);
+        FORWARD(Sequence);
+        FORWARD(Loop);
+        FORWARD(Parallel);
+        FORWARD(Exit);
+        FORWARD(LogTimer);
+        FORWARD(LogRelationTimer);
+        FORWARD(DebugInfo);
+        FORWARD(Stratum);
+
+#ifdef USE_MPI
+        // mpi
+        FORWARD(Send);
+        FORWARD(Recv);
+        FORWARD(Notify);
+        FORWARD(Wait);
+#endif
 
 #undef FORWARD
-        }
 
         // did not work ...
 
@@ -145,64 +171,95 @@ protected:
     // -- statements --
     LINK(Create, RelationStatement);
     LINK(Fact, RelationStatement);
-    LINK(Load, RelationStatement);
-    LINK(Store, RelationStatement);
-    LINK(Insert, Statement);
+    LINK(Load, AbstractLoadStore);
+    LINK(Store, AbstractLoadStore);
+    LINK(AbstractLoadStore, RelationStatement);
+    LINK(Query, Statement);
     LINK(Clear, RelationStatement);
     LINK(Drop, RelationStatement);
-    LINK(PrintSize, RelationStatement);
     LINK(LogSize, RelationStatement);
 
     LINK(RelationStatement, Statement);
 
-    LINK(Merge, Statement);
-    LINK(Swap, Statement);
+    LINK(Merge, BinRelationStatement);
+    LINK(Swap, BinRelationStatement);
+    LINK(BinRelationStatement, Statement);
 
-    LINK(Sequence, Statement);
+    LINK(Sequence, ListStatement);
     LINK(Loop, Statement);
-    LINK(Parallel, Statement);
+    LINK(Parallel, ListStatement);
+    LINK(ListStatement, Statement);
     LINK(Exit, Statement);
     LINK(LogTimer, Statement);
+    LINK(LogRelationTimer, Statement);
     LINK(DebugInfo, Statement);
+    LINK(Stratum, Statement);
 
     LINK(Statement, Node);
 
     // -- operations --
-    LINK(Project, Operation)
-    LINK(Lookup, Search)
-    LINK(Scan, Search)
-    LINK(Aggregate, Search)
-    LINK(Search, Operation)
-    LINK(Return, Operation);
+    LINK(Project, Operation);
+    LINK(SubroutineReturnValue, Operation);
+    LINK(UnpackRecord, TupleOperation);
+    LINK(Scan, RelationOperation);
+    LINK(ParallelScan, Scan);
+    LINK(IndexScan, IndexOperation);
+    LINK(ParallelIndexScan, IndexScan);
+    LINK(Choice, RelationOperation);
+    LINK(ParallelChoice, Choice);
+    LINK(IndexChoice, IndexOperation);
+    LINK(ParallelIndexChoice, IndexChoice);
+    LINK(RelationOperation, TupleOperation);
+    LINK(Aggregate, RelationOperation);
+    LINK(IndexAggregate, IndexOperation);
+    LINK(IndexOperation, RelationOperation);
+    LINK(TupleOperation, NestedOperation);
+    LINK(Filter, AbstractConditional);
+    LINK(Break, AbstractConditional);
+    LINK(AbstractConditional, NestedOperation);
+    LINK(NestedOperation, Operation);
 
-    LINK(Operation, Node)
+    LINK(Operation, Node);
 
     // -- conditions --
-    LINK(And, Condition)
-    LINK(BinaryRelation, Condition)
-    LINK(NotExists, Condition)
-    LINK(Empty, Condition)
+    LINK(True, Condition);
+    LINK(False, Condition);
+    LINK(Conjunction, Condition);
+    LINK(Negation, Condition);
+    LINK(Constraint, Condition);
+    LINK(ExistenceCheck, AbstractExistenceCheck);
+    LINK(ProvenanceExistenceCheck, AbstractExistenceCheck);
+    LINK(EmptinessCheck, Condition);
+    LINK(AbstractExistenceCheck, Condition);
 
-    LINK(Condition, Node)
+    LINK(Condition, Node);
 
     // -- values --
-    LINK(Number, Value)
-    LINK(ElementAccess, Value)
-    LINK(UnaryOperator, Value)
-    LINK(BinaryOperator, Value)
-    LINK(TernaryOperator, Value)
-    LINK(AutoIncrement, Value)
-    LINK(Pack, Value)
-    LINK(Argument, Value)
+    LINK(Number, Expression);
+    LINK(UndefValue, Expression);
+    LINK(TupleElement, Expression);
+    LINK(IntrinsicOperator, AbstractOperator);
+    LINK(UserDefinedOperator, AbstractOperator);
+    LINK(AbstractOperator, Expression);
+    LINK(AutoIncrement, Expression);
+    LINK(PackRecord, Expression);
+    LINK(SubroutineArgument, Expression);
 
-    LINK(Value, Node)
+    LINK(Expression, Node);
 
     // -- program --
-    LINK(Program, Node)
+    LINK(Program, Node);
 
     // -- relation
-    LINK(Relation, Node)
-    LINK(RelationRef, Node)
+    LINK(Relation, Node);
+    LINK(RelationReference, Node);
+
+#ifdef USE_MPI
+    LINK(Send, RelationStatement);
+    LINK(Recv, RelationStatement);
+    LINK(Notify, Statement);
+    LINK(Wait, Statement);
+#endif
 
 #undef LINK
 
@@ -225,29 +282,10 @@ template <typename R, typename... Ps, typename... Args>
 void visitDepthFirstPreOrder(const RamNode& root, RamVisitor<R, Ps...>& visitor, Args&... args) {
     visitor(root, args...);
     for (const RamNode* cur : root.getChildNodes()) {
-        if (cur) {
+        if (cur != nullptr) {
             visitDepthFirstPreOrder(*cur, visitor, args...);
         }
     }
-}
-
-/**
- * A utility function visiting all nodes within the RAM fragment rooted by the given node
- * recursively in a depth-first post-order fashion applying the given visitor to each
- * encountered node.
- *
- * @param root the root of the RAM fragment to be visited
- * @param visitor the visitor to be applied on each node
- * @param args a list of extra parameters to be forwarded to the visitor
- */
-template <typename R, typename... Ps, typename... Args>
-void visitDepthFirstPostOrder(const RamNode& root, RamVisitor<R, Ps...>& visitor, Args&... args) {
-    for (const RamNode* cur : root.getChildNodes()) {
-        if (cur) {
-            visitDepthFirstPreOrder(*cur, visitor, args...);
-        }
-    }
-    visitor(root, args...);
 }
 
 /**
@@ -273,9 +311,9 @@ namespace detail {
 template <typename R, typename N>
 struct LambdaRamVisitor : public RamVisitor<void> {
     std::function<R(const N&)> lambda;
-    LambdaRamVisitor(const std::function<R(const N&)>& lambda) : lambda(lambda) {}
+    LambdaRamVisitor(std::function<R(const N&)> lambda) : lambda(std::move(lambda)) {}
     void visit(const RamNode& node) override {
-        if (const N* n = dynamic_cast<const N*>(&node)) {
+        if (const auto* n = dynamic_cast<const N*>(&node)) {
             lambda(*n);
         }
     }

@@ -15,29 +15,24 @@
 #pragma once
 
 #include "AstAnalysis.h"
-#include "AstComponent.h"
-#include "AstRelation.h"
-#include "AstTranslationUnit.h"
-
-#include <memory>
+#include "AstTransformer.h"
+#include "AstType.h"
+#include <cstddef>
+#include <map>
+#include <set>
 #include <string>
 #include <vector>
 
 namespace souffle {
 
-class ErrorReport;
+class AstComponent;
+class AstTranslationUnit;
 
 /**
  * Class that encapsulates std::map of types binding that comes from .init c = Comp<MyType>
  * Type binding in this example would be T->MyType if the component code is .comp Comp<T> ...
  */
 class TypeBinding {
-    /**
-     * Key value pair. Keys are names that should be forwarded to value,
-     * which is the actual name. Example T->MyImplementation.
-     */
-    std::map<AstTypeIdentifier, AstTypeIdentifier> binding;
-
 public:
     /**
      * Returns binding for given name or empty string if such binding does not exist.
@@ -69,15 +64,16 @@ public:
 
         return result;
     }
+
+private:
+    /**
+     * Key value pair. Keys are names that should be forwarded to value,
+     * which is the actual name. Example T->MyImplementation.
+     */
+    std::map<AstTypeIdentifier, AstTypeIdentifier> binding;
 };
 
 class ComponentLookup : public AstAnalysis {
-private:
-    std::set<const AstComponent*> globalScopeComponents;  // components defined outside of any components
-    std::map<const AstComponent*, std::set<const AstComponent*>>
-            nestedComponents;  // components defined inside a component
-    std::map<const AstComponent*, const AstComponent*>
-            enclosingComponent;  // component definition enclosing a component definition
 public:
     static constexpr const char* name = "component-lookup";
 
@@ -92,16 +88,24 @@ public:
      */
     const AstComponent* getComponent(
             const AstComponent* scope, const std::string& name, const TypeBinding& activeBinding) const;
+
+private:
+    // components defined outside of any components
+    std::set<const AstComponent*> globalScopeComponents;
+    // components defined inside a component
+    std::map<const AstComponent*, std::set<const AstComponent*>> nestedComponents;
+    // component definition enclosing a component definition
+    std::map<const AstComponent*, const AstComponent*> enclosingComponent;
 };
 
 class ComponentInstantiationTransformer : public AstTransformer {
-private:
-    bool transform(AstTranslationUnit& translationUnit) override;
-
 public:
     std::string getName() const override {
         return "ComponentInstantiationTransformer";
     }
+
+private:
+    bool transform(AstTranslationUnit& translationUnit) override;
 };
 
 }  // end of namespace souffle

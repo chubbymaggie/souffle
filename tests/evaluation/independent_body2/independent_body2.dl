@@ -10,9 +10,10 @@
 .decl a(x:number)
 
 // Should become:
-//  - a(x) :- b(z,x), !e(z), newrel().
-//  - newrel() :- b(y,y), c(y).
-a(x) :- b(y,y), b(z,x), !e(z), c(y).
+//  - a(x) :- b(z,x), !e(z), newrel0(), newrel1().
+//  - newrel0() :- b(y,y), c(y).
+//  - newrel1() :- b(m,n), e(n).
+a(x) :- b(y,y), b(z,x), !e(z), c(y), b(_,n), e(n).
 
 // Should remain unchanged.
 a(x) :- b(x,y), c(y), d(y,_).

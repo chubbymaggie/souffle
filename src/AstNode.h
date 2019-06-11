@@ -5,6 +5,7 @@
  * - https://opensource.org/licenses/UPL
  * - <souffle root>/licenses/SOUFFLE-UPL.txt
  */
+
 /************************************************************************
  *
  * @file AstNode.h
@@ -15,17 +16,17 @@
 
 #pragma once
 
-#include "AstSrcLocation.h"
 #include "AstTypes.h"
+#include "SrcLocation.h"
 #include "Util.h"
 
 #include <limits>
 #include <memory>
 #include <typeinfo>
 
+#include <cstddef>
+#include <cstring>
 #include <libgen.h>
-#include <stddef.h>
-#include <string.h>
 #include <unistd.h>
 
 namespace souffle {
@@ -37,19 +38,16 @@ class AstNodeMapper;
  *  @brief Abstract class for syntactic elements in a Datalog program.
  */
 class AstNode {
-    /** Source location of a syntactic element */
-    AstSrcLocation location;
-
 public:
     virtual ~AstNode() = default;
 
     /** Return source location of the AstNode */
-    AstSrcLocation getSrcLoc() const {
+    SrcLocation getSrcLoc() const {
         return location;
     }
 
     /** Set source location for the AstNode */
-    void setSrcLoc(const AstSrcLocation& l) {
+    void setSrcLoc(const SrcLocation& l) {
         location = l;
     }
 
@@ -60,7 +58,13 @@ public:
 
     /** Equivalence check for two AST nodes */
     bool operator==(const AstNode& other) const {
-        return this == &other || (typeid(*this) == typeid(other) && equal(other));
+        if (this == &other) {
+            return true;
+        } else if (typeid(*this) == typeid(*&other)) {
+            return equal(other);
+        }
+        return false;
+        // return this == &other || (typeid(*this) == typeid(other) && equal(other));
     }
 
     /** Inequality check for two AST nodes */
@@ -89,6 +93,10 @@ public:
 protected:
     /** Abstract equality check for two AST nodes */
     virtual bool equal(const AstNode& other) const = 0;
+
+private:
+    /** Source location of a syntactic element */
+    SrcLocation location;
 };
 
 /**
@@ -114,7 +122,7 @@ public:
     std::unique_ptr<T> operator()(std::unique_ptr<T> node) const {
         std::unique_ptr<AstNode> resPtr =
                 (*this)(std::unique_ptr<AstNode>(static_cast<AstNode*>(node.release())));
-        assert(dynamic_cast<T*>(resPtr.get()) && "Invalid target node!");
+        assert(nullptr != dynamic_cast<T*>(resPtr.get()) && "Invalid target node!");
         return std::unique_ptr<T>(dynamic_cast<T*>(resPtr.release()));
     }
 };
@@ -141,7 +149,7 @@ public:
  * Creates a node mapper based on a corresponding lambda expression.
  */
 template <typename Lambda>
-detail::LambdaNodeMapper<Lambda> makeLambdaMapper(const Lambda& lambda) {
+detail::LambdaNodeMapper<Lambda> makeLambdaAstMapper(const Lambda& lambda) {
     return detail::LambdaNodeMapper<Lambda>(lambda);
 }
 

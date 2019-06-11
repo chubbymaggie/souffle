@@ -19,7 +19,7 @@
 #include "ParallelUtils.h"
 #include "RamNode.h"
 #include "RamTypes.h"
-#include "SymbolMask.h"
+#include "RelationRepresentation.h"
 #include "SymbolTable.h"
 #include "Table.h"
 #include "Util.h"
@@ -27,77 +27,47 @@
 #include <list>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace souffle {
 
 /**
  * A RAM Relation in the RAM intermediate representation.
- * TODO (#541): Make RamRelation a sub-class of RAM node.
- * TODO (#541): Tidy-up interface and attributes
  */
 class RamRelation : public RamNode {
 protected:
     /** Name of relation */
-    std::string name;
+    const std::string name;
 
     /** Arity, i.e., number of attributes */
-    unsigned arity;
+    const size_t arity;
 
     /** Name of attributes */
-    std::vector<std::string> attributeNames;
+    const std::vector<std::string> attributeNames;
 
     /** Type of attributes */
-    std::vector<std::string> attributeTypeQualifiers;
+    const std::vector<std::string> attributeTypeQualifiers;
 
-    /** TODO (#541): legacy, i.e., duplicated information */
-    SymbolMask mask;
-
-    /** Relation qualifiers */
-    // TODO: Simplify interface
-    bool input;     // input relation
-    bool output;    // output relation
-    bool computed;  // either output or printed
-
-    bool btree;    // btree data-structure
-    bool rbtset;   // red-black tree set data structure
-    bool hashset;  // hash set data-structure
-    bool brie;     // brie data-structure
-    bool eqrel;    // equivalence relation
-
-    bool isdata;  // Datalog relation in the program
-    bool istemp;  // Temporary relation for semi-naive evaluation
+    /** Data-structure representation */
+    const RelationRepresentation representation;
 
 public:
-    RamRelation()
-            : RamNode(RN_Relation), arity(0), mask(arity), input(false), output(false), computed(false),
-              btree(false), rbtset(false), hashset(false), brie(false), eqrel(false), isdata(false),
-              istemp(false) {}
-
-    RamRelation(const std::string& name, unsigned arity, const bool istemp, const bool hashset = false)
-            : RamRelation(name, arity) {
-        this->hashset = hashset;
-        this->istemp = istemp;
-    }
-
-    RamRelation(const std::string& name, unsigned arity, std::vector<std::string> attributeNames = {},
-            std::vector<std::string> attributeTypeQualifiers = {}, const SymbolMask& mask = SymbolMask(0),
-            const bool input = false, const bool computed = false, const bool output = false,
-            const bool btree = false, const bool rbtset = false, const bool hashset = false,
-            const bool brie = false, const bool eqrel = false, const bool isdata = false,
-            const bool istemp = false)
-            : RamNode(RN_Relation), name(name), arity(arity), attributeNames(attributeNames),
-              attributeTypeQualifiers(attributeTypeQualifiers), mask(mask), input(input), output(output),
-              computed(computed), btree(btree), rbtset(rbtset), hashset(hashset), brie(brie), eqrel(eqrel),
-              isdata(isdata), istemp(istemp) {
+    RamRelation(const std::string name, const size_t arity, const std::vector<std::string> attributeNames,
+            const std::vector<std::string> attributeTypeQualifiers,
+            const RelationRepresentation representation)
+            : RamNode(), name(std::move(name)), arity(arity), attributeNames(std::move(attributeNames)),
+              attributeTypeQualifiers(std::move(attributeTypeQualifiers)), representation(representation) {
         assert(this->attributeNames.size() == arity || this->attributeNames.empty());
         assert(this->attributeTypeQualifiers.size() == arity || this->attributeTypeQualifiers.empty());
     }
 
+    /** Get name */
     const std::string& getName() const {
         return name;
     }
 
+    /** Get argument */
     const std::string getArg(uint32_t i) const {
         if (!attributeNames.empty()) {
             return attributeNames[i];
@@ -108,157 +78,100 @@ public:
         return "c" + std::to_string(i);
     }
 
+    /** Get Argument Type Qualifier */
     const std::string getArgTypeQualifier(uint32_t i) const {
         return (i < attributeTypeQualifiers.size()) ? attributeTypeQualifiers[i] : "";
     }
 
-    const SymbolMask& getSymbolMask() const {
-        return mask;
+    const std::vector<std::string>& getAttributeTypeQualifiers() const {
+        return attributeTypeQualifiers;
     }
 
-    const bool isInput() const {
-        return input;
+    /** Is nullary relation */
+    const bool isNullary() const {
+        return arity == 0;
     }
 
-    const bool isComputed() const {
-        return computed;
+    /** Relation representation type */
+    const RelationRepresentation getRepresentation() const {
+        return representation;
     }
 
-    const bool isOutput() const {
-        return output;
-    }
-
-    const bool isBTree() const {
-        return btree;
-    }
-
-    const bool isRbtset() const {
-        return rbtset;
-    }
-
-    const bool isHashset() const {
-        return hashset;
-    }
-
-    const bool isBrie() const {
-        return brie;
-    }
-
-    const bool isEqRel() const {
-        return eqrel;
-    }
-
-    // data-structures that can server various searches
-    const bool isCoverable() const {
-        return !isHashset();
-    }
-
+    /** Is temporary relation (for semi-naive evaluation) */
     const bool isTemp() const {
-        return istemp;
+        return name.at(0) == '@';
     }
 
-    const bool isData() const {
-        return isdata;
-    }
-
+    /* Get arity of relation */
     unsigned getArity() const {
         return arity;
     }
 
+    /* Compare two relations via their name */
     bool operator<(const RamRelation& other) const {
         return name < other.name;
     }
 
-    /* Print */
     void print(std::ostream& out) const override {
-        out << name << "(";
-        out << getArg(0);
-        for (unsigned i = 1; i < arity; i++) {
-            out << ",";
-            out << getArg(i);
+        out << name;
+        if (arity > 0) {
+            out << "(" << getArg(0) << ":" << attributeTypeQualifiers[0];
+            for (unsigned i = 1; i < arity; i++) {
+                out << ",";
+                out << getArg(i) << ":" << attributeTypeQualifiers[i];
+            }
+            out << ")";
+            out << " " << representation;
+        } else {
+            out << " nullary";
         }
-        out << ")";
-
-        if (isBTree()) out << " btree";
-        if (isRbtset()) out << " rbtset";
-        if (isHashset()) out << " hashset";
-        if (isBrie()) out << " brie";
-        if (isEqRel()) out << " eqrel";
     }
 
-    /** Obtain list of child nodes */
-    std::vector<const RamNode*> getChildNodes() const override {
-        return std::vector<const RamNode*>();  // no child nodes
-    }
-
-    /** Create clone */
     RamRelation* clone() const override {
-        RamRelation* res = new RamRelation(name, arity, attributeNames, attributeTypeQualifiers, mask, input,
-                computed, output, btree, rbtset, hashset, brie, eqrel, isdata, istemp);
-        return res;
+        return new RamRelation(name, arity, attributeNames, attributeTypeQualifiers, representation);
     }
-
-    /** Apply mapper */
-    void apply(const RamNodeMapper& map) override {}
 
 protected:
-    /** Check equality */
     bool equal(const RamNode& node) const override {
-        assert(dynamic_cast<const RamRelation*>(&node));
-        const RamRelation& other = static_cast<const RamRelation&>(node);
+        assert(nullptr != dynamic_cast<const RamRelation*>(&node));
+        const auto& other = static_cast<const RamRelation&>(node);
         return name == other.name && arity == other.arity && attributeNames == other.attributeNames &&
-               attributeTypeQualifiers == other.attributeTypeQualifiers && mask == other.mask &&
-               isInput() == other.isInput() && isOutput() == other.isOutput() &&
-               isComputed() == other.isComputed() && isBTree() == other.isBTree() &&
-               isRbtset() == other.isRbtset() && isHashset() == other.isHashset() &&
-               isBrie() == other.isBrie() && isEqRel() == other.isEqRel() && isData() == other.isData() &&
-               isTemp() == other.isTemp();
+               attributeTypeQualifiers == other.attributeTypeQualifiers &&
+               representation == other.representation && isTemp() == other.isTemp();
     }
 };
 
 /**
  * A RAM Relation in the RAM intermediate representation.
- * TODO: Make RamRelation a sub-class of RAM node.
- * TODO: Tidy-up interface and attributes
  */
-class RamRelationRef : public RamNode {
+class RamRelationReference : public RamNode {
+public:
+    RamRelationReference(const RamRelation* relation) : RamNode(), relation(relation) {
+        assert(relation != nullptr && "null relation");
+    }
+
+    /** Get reference */
+    const RamRelation* get() const {
+        assert(relation != nullptr && "relation reference is a null-pointer");
+        return relation;
+    }
+
+    void print(std::ostream& out) const override {
+        out << relation->getName();
+    }
+
+    RamRelationReference* clone() const override {
+        return new RamRelationReference(relation);
+    }
+
 protected:
     /** Name of relation */
-    std::string name;
+    const RamRelation* relation;
 
-public:
-    RamRelationRef(const std::string& n) : RamNode(RN_RelationRef), name(n) {}
-
-    /** Get name */
-    const std::string& getName() const {
-        return name;
-    }
-
-    /* Print */
-    void print(std::ostream& out) const override {
-        out << name;
-    }
-
-    /** Obtain list of child nodes */
-    std::vector<const RamNode*> getChildNodes() const override {
-        return std::vector<const RamNode*>();  // no child nodes
-    }
-
-    /** Create clone */
-    RamRelationRef* clone() const override {
-        RamRelationRef* res = new RamRelationRef(getName());
-        return res;
-    }
-
-    /** Apply mapper */
-    void apply(const RamNodeMapper& map) override {}
-
-protected:
-    /** Check equality */
     bool equal(const RamNode& node) const override {
-        assert(dynamic_cast<const RamRelation*>(&node));
-        const RamRelation& other = static_cast<const RamRelation&>(node);
-        return getName() == other.getName();
+        assert(nullptr != dynamic_cast<const RamRelationReference*>(&node));
+        const auto& other = static_cast<const RamRelationReference&>(node);
+        return relation == other.relation;
     }
 };
 

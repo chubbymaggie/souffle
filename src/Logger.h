@@ -18,19 +18,14 @@
 #pragma once
 
 #include "ParallelUtils.h"
+#include "ProfileEvent.h"
 
 #include <chrono>
+#include <functional>
 #include <iostream>
+#include <utility>
 
 namespace souffle {
-
-/**
- * Obtains a reference to the lock synchronizing output operations.
- */
-inline Lock& getOutputLock() {
-    static Lock output_lock;
-    return output_lock;
-}
 
 /**
  * The class utilized to times for the souffle profiling tool. This class
@@ -41,47 +36,32 @@ inline Lock& getOutputLock() {
  * processed tuples may be added in the future.
  */
 class Logger {
-    // the type of clock to be utilized by this class
-    typedef std::chrono::steady_clock clock;
-    typedef clock::time_point time;
-
-    // a label to be printed when reporting the execution time
-    const char* label;
-
-    // the start time
-    time start;
-
-    // an output stream to report to
-    std::ostream& out;
-
-    // extension of log file determining message format
-    const std::string ext;
-
 public:
-    Logger(const char* label, std::ostream& out = std::cout, const std::string ext = "")
-            : label(label), out(out), ext(ext) {
-        start = clock::now();
+    Logger(std::string label, size_t iteration) : Logger(label, iteration, []() { return 0; }) {}
+
+    Logger(std::string label, size_t iteration, std::function<size_t()> size)
+            : label(std::move(label)), start(now()), iteration(iteration), size(size), preSize(size()) {
+        struct rusage ru {};
+        getrusage(RUSAGE_SELF, &ru);
+        startMaxRSS = ru.ru_maxrss;
+        // Assume that if we are logging the progress of an event then we care about usage during that time.
+        ProfileEventSingleton::instance().resetTimerInterval();
     }
 
     ~Logger() {
-        auto duration = clock::now() - start;
-
-        auto lease = getOutputLock().acquire();
-        (void)lease;  // avoid warning
-
-        out << label << std::chrono::duration_cast<std::chrono::duration<double>>(duration).count();
-
-        if (ext == "json") {
-            out << "}";
-            if (std::string(label).find("@runtime") != std::string::npos) {
-                out << "\n]";
-            } else {
-                out << ",";
-            }
-        }
-
-        out << "\n";
+        struct rusage ru {};
+        getrusage(RUSAGE_SELF, &ru);
+        size_t endMaxRSS = ru.ru_maxrss;
+        ProfileEventSingleton::instance().makeTimingEvent(
+                label, start, now(), startMaxRSS, endMaxRSS, size() - preSize, iteration);
     }
-};
 
+private:
+    std::string label;
+    time_point start;
+    size_t startMaxRSS;
+    size_t iteration;
+    std::function<size_t()> size;
+    size_t preSize;
+};
 }  // end of namespace souffle

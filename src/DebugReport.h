@@ -16,11 +16,15 @@
 #pragma once
 
 #include "AstTransformer.h"
+#include "Global.h"
 
+#include <fstream>
 #include <memory>
 #include <ostream>
+#include <set>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace souffle {
@@ -33,16 +37,11 @@ class AstTranslationUnit;
  * and the HTML code for the body of the section.
  */
 class DebugReportSection {
-private:
-    std::string id;
-    std::string title;
-    std::vector<DebugReportSection> subsections;
-    std::string body;
-
 public:
-    DebugReportSection(
-            std::string id, std::string title, std::vector<DebugReportSection> subsections, std::string body)
-            : id(generateUniqueID(id)), title(title), subsections(subsections), body(body) {}
+    DebugReportSection(const std::string& id, std::string title, std::vector<DebugReportSection> subsections,
+            std::string body)
+            : id(generateUniqueID(id)), title(std::move(title)), subsections(std::move(subsections)),
+              body(std::move(body)) {}
 
     /**
      * Outputs the HTML code for the index to the given stream,
@@ -68,6 +67,11 @@ public:
     }
 
 private:
+    std::string id;
+    std::string title;
+    std::vector<DebugReportSection> subsections;
+    std::string body;
+
     static std::string generateUniqueID(const std::string& id) {
         static int count = 0;
         return id + std::to_string(count++);
@@ -78,10 +82,13 @@ private:
  * Class representing a HTML report, consisting of a list of sections.
  */
 class DebugReport {
-private:
-    std::vector<DebugReportSection> sections;
-
 public:
+    ~DebugReport() {
+        if (!empty()) {
+            std::ofstream debugReportStream(Global::config().get("debug-report"));
+            debugReportStream << *this;
+        }
+    }
     bool empty() const {
         return sections.empty();
     }
@@ -101,6 +108,9 @@ public:
         report.print(out);
         return out;
     }
+
+private:
+    std::vector<DebugReportSection> sections;
 };
 
 /**
@@ -109,11 +119,6 @@ public:
  * and adds it to the translation unit's debug report.
  */
 class DebugReporter : public MetaTransformer {
-private:
-    std::unique_ptr<AstTransformer> wrappedTransformer;
-
-    bool transform(AstTranslationUnit& translationUnit) override;
-
 public:
     DebugReporter(std::unique_ptr<AstTransformer> wrappedTransformer)
             : wrappedTransformer(std::move(wrappedTransformer)) {}
@@ -122,8 +127,16 @@ public:
 
     void setVerbosity(bool verbose) override {
         this->verbose = verbose;
-        if (MetaTransformer* mt = dynamic_cast<MetaTransformer*>(wrappedTransformer.get())) {
+        if (auto* mt = dynamic_cast<MetaTransformer*>(wrappedTransformer.get())) {
             mt->setVerbosity(verbose);
+        }
+    }
+
+    void disableTransformers(const std::set<std::string>& transforms) override {
+        if (auto* mt = dynamic_cast<MetaTransformer*>(wrappedTransformer.get())) {
+            mt->disableTransformers(transforms);
+        } else if (transforms.find(wrappedTransformer->getName()) != transforms.end()) {
+            wrappedTransformer = std::unique_ptr<AstTransformer>(new NullTransformer());
         }
     }
 
@@ -138,17 +151,24 @@ public:
      * @param id the unique id of the generated section
      * @param title the text to display as the heading of the section
      */
-    static void generateDebugReport(AstTranslationUnit& translationUnit, std::string id, std::string title);
+    static void generateDebugReport(
+            AstTranslationUnit& translationUnit, const std::string& id, std::string title);
 
     /**
      * Generate a debug report section for code (preserving formatting), with the given id and title.
      */
-    static DebugReportSection getCodeSection(std::string id, std::string title, std::string code);
+    static DebugReportSection getCodeSection(const std::string& id, std::string title, std::string code);
 
     /**
      * Generated a debug report section for a dot graph specification, with the given id and title.
      */
-    static DebugReportSection getDotGraphSection(std::string id, std::string title, std::string dotSpec);
+    static DebugReportSection getDotGraphSection(
+            const std::string& id, std::string title, const std::string& dotSpec);
+
+private:
+    std::unique_ptr<AstTransformer> wrappedTransformer;
+
+    bool transform(AstTranslationUnit& translationUnit) override;
 };
 
 }  // end of namespace souffle

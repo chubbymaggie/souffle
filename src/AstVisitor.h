@@ -28,6 +28,7 @@
 
 #include <functional>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace souffle {
@@ -63,7 +64,7 @@ struct AstVisitor : public ast_visitor_tag {
      * @param args a list of extra parameters to be forwarded
      */
     virtual R visit(const AstNode& node, Params... args) {
-// dispatch node processing based on dynamic type
+        // dispatch node processing based on dynamic type
 
 #define FORWARD(Kind) \
     if (const auto* n = dynamic_cast<const Ast##Kind*>(&node)) return visit##Kind(*n, args...);
@@ -76,9 +77,8 @@ struct AstVisitor : public ast_visitor_tag {
         // arguments
         FORWARD(Variable)
         FORWARD(UnnamedVariable)
-        FORWARD(UnaryFunctor)
-        FORWARD(BinaryFunctor)
-        FORWARD(TernaryFunctor)
+        FORWARD(IntrinsicFunctor)
+        FORWARD(UserDefinedFunctor)
         FORWARD(Counter)
         FORWARD(NumberConstant)
         FORWARD(StringConstant)
@@ -86,10 +86,12 @@ struct AstVisitor : public ast_visitor_tag {
         FORWARD(TypeCast)
         FORWARD(RecordInit)
         FORWARD(Aggregator)
+        FORWARD(SubroutineArgument)
 
         // literals
         FORWARD(Atom)
         FORWARD(Negation)
+        FORWARD(ProvenanceNegation)
         FORWARD(BooleanConstraint)
         FORWARD(BinaryConstraint)
 
@@ -102,7 +104,8 @@ struct AstVisitor : public ast_visitor_tag {
         FORWARD(Attribute);
         FORWARD(Clause);
         FORWARD(Relation);
-        FORWARD(IODirective);
+        FORWARD(Load);
+        FORWARD(Store);
         FORWARD(Program);
         FORWARD(Pragma);
 
@@ -133,15 +136,15 @@ protected:
     LINK(Counter, Argument)
     LINK(TypeCast, Argument)
     LINK(RecordInit, Argument)
+    LINK(SubroutineArgument, Argument)
 
     LINK(NumberConstant, Constant)
     LINK(StringConstant, Constant)
     LINK(NullConstant, Constant)
     LINK(Constant, Argument)
 
-    LINK(UnaryFunctor, Functor)
-    LINK(BinaryFunctor, Functor)
-    LINK(TernaryFunctor, Functor)
+    LINK(IntrinsicFunctor, Functor)
+    LINK(UserDefinedFunctor, Functor)
     LINK(Functor, Argument)
 
     LINK(Aggregator, Argument)
@@ -151,6 +154,7 @@ protected:
     // literals
     LINK(Atom, Literal)
     LINK(Negation, Literal)
+    LINK(ProvenanceNegation, Literal)
     LINK(Literal, Node);
 
     LINK(BooleanConstraint, Constraint)
@@ -166,7 +170,8 @@ protected:
     LINK(Program, Node);
     LINK(Attribute, Node);
     LINK(Clause, Node);
-    LINK(IODirective, Node);
+    LINK(Load, Node);
+    LINK(Store, Node);
     LINK(Relation, Node);
     LINK(Pragma, Node);
 
@@ -191,7 +196,7 @@ template <typename R, typename... Ps, typename... Args>
 void visitDepthFirstPreOrder(const AstNode& root, AstVisitor<R, Ps...>& visitor, Args&... args) {
     visitor(root, args...);
     for (const AstNode* cur : root.getChildNodes()) {
-        if (cur) {
+        if (cur != nullptr) {
             visitDepthFirstPreOrder(*cur, visitor, args...);
         }
     }
@@ -209,8 +214,8 @@ void visitDepthFirstPreOrder(const AstNode& root, AstVisitor<R, Ps...>& visitor,
 template <typename R, typename... Ps, typename... Args>
 void visitDepthFirstPostOrder(const AstNode& root, AstVisitor<R, Ps...>& visitor, Args&... args) {
     for (const AstNode* cur : root.getChildNodes()) {
-        if (cur) {
-            visitDepthFirstPreOrder(*cur, visitor, args...);
+        if (cur != nullptr) {
+            visitDepthFirstPostOrder(*cur, visitor, args...);
         }
     }
     visitor(root, args...);
@@ -239,9 +244,9 @@ namespace detail {
 template <typename R, typename N>
 struct LambdaAstVisitor : public AstVisitor<void> {
     std::function<R(const N&)> lambda;
-    LambdaAstVisitor(const std::function<R(const N&)>& lambda) : lambda(lambda) {}
+    LambdaAstVisitor(std::function<R(const N&)> lambda) : lambda(std::move(lambda)) {}
     void visit(const AstNode& node) override {
-        if (const N* n = dynamic_cast<const N*>(&node)) {
+        if (const auto* n = dynamic_cast<const N*>(&node)) {
             lambda(*n);
         }
     }

@@ -16,15 +16,18 @@
 
 #pragma once
 
+#include "AstClause.h"
+#include "AstIO.h"
+#include "AstNode.h"
 #include "AstRelation.h"
+#include "AstType.h"
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace souffle {
-
-class ErrorReport;
 
 /**
  * A component type is the class utilized to represent a construct of the form
@@ -35,23 +38,13 @@ class ErrorReport;
  * list of type parameters.
  */
 class AstComponentType : public AstNode {
-    /**
-     * The name of the addressed component.
-     */
-    std::string name;
-
-    /**
-     * The list of associated type parameters.
-     */
-    std::vector<AstTypeIdentifier> typeParams;
-
 public:
     /**
      * Creates a new component type based on the given name and parameters.
      */
-    AstComponentType(const std::string& name = "",
-            const std::vector<AstTypeIdentifier>& params = std::vector<AstTypeIdentifier>())
-            : name(name), typeParams(params) {}
+    AstComponentType(
+            std::string name = "", std::vector<AstTypeIdentifier> params = std::vector<AstTypeIdentifier>())
+            : name(std::move(name)), typeParams(std::move(params)) {}
 
     // -- getters and setters --
 
@@ -79,11 +72,11 @@ public:
     }
 
     void apply(const AstNodeMapper& /*mapper*/) override {
-        return;  // nothing to do
+        // nothing to do
     }
 
     AstComponentType* clone() const override {
-        AstComponentType* res = new AstComponentType(name, typeParams);
+        auto* res = new AstComponentType(name, typeParams);
         res->setSrcLoc(getSrcLoc());
         return res;
     }
@@ -97,10 +90,17 @@ public:
 
 protected:
     bool equal(const AstNode& node) const override {
-        assert(dynamic_cast<const AstComponentType*>(&node));
-        const AstComponentType& other = static_cast<const AstComponentType&>(node);
+        assert(nullptr != dynamic_cast<const AstComponentType*>(&node));
+        const auto& other = static_cast<const AstComponentType&>(node);
         return name == other.name && typeParams == other.typeParams;
     }
+
+private:
+    /** The name of the addressed component. */
+    std::string name;
+
+    /** The list of associated type parameters. */
+    std::vector<AstTypeIdentifier> typeParams;
 };
 
 /**
@@ -108,16 +108,6 @@ protected:
  * binding them to a name.
  */
 class AstComponentInit : public AstNode {
-    /**
-     * The name of the resulting component instance.
-     */
-    std::string instanceName;
-
-    /**
-     * The type of the component to be instantiated.
-     */
-    std::unique_ptr<AstComponentType> componentType;
-
 public:
     // -- getters and setters --
 
@@ -166,61 +156,23 @@ public:
 protected:
     /** An internal function to determine equality to another node */
     bool equal(const AstNode& node) const override {
-        assert(dynamic_cast<const AstComponentInit*>(&node));
-        const AstComponentInit& other = static_cast<const AstComponentInit&>(node);
+        assert(nullptr != dynamic_cast<const AstComponentInit*>(&node));
+        const auto& other = static_cast<const AstComponentInit&>(node);
         return instanceName == other.instanceName && componentType == other.componentType;
     }
+
+private:
+    /** The name of the resulting component instance. */
+    std::string instanceName;
+
+    /** The type of the component to be instantiated. */
+    std::unique_ptr<AstComponentType> componentType;
 };
 
 /**
  * A AST node describing a component within the input program.
  */
 class AstComponent : public AstNode {
-    /**
-     * The type of this component, including its name and type parameters.
-     */
-    std::unique_ptr<AstComponentType> type;
-
-    /**
-     * A list of base types to inherit relations and clauses from.
-     */
-    std::vector<std::unique_ptr<AstComponentType>> baseComponents;
-
-    /**
-     * A list of types declared in this component.
-     */
-    std::vector<std::unique_ptr<AstType>> types;
-
-    /**
-     * A list of relations declared in this component.
-     */
-    std::vector<std::unique_ptr<AstRelation>> relations;
-
-    /**
-     * A list of clauses defined in this component.
-     */
-    std::vector<std::unique_ptr<AstClause>> clauses;
-
-    /**
-     * A list of IO directives defined in this component.
-     */
-    std::vector<std::unique_ptr<AstIODirective>> ioDirectives;
-
-    /**
-     * A list of nested components.
-     */
-    std::vector<std::unique_ptr<AstComponent>> components;
-
-    /**
-     * A list of nested component instantiations.
-     */
-    std::vector<std::unique_ptr<AstComponentInit>> instantiations;
-
-    /**
-     * Set of relations that are overwritten
-     */
-    std::set<std::string> overrideRules;
-
 public:
     ~AstComponent() override = default;
 
@@ -253,7 +205,7 @@ public:
     void copyBaseComponents(const AstComponent* other) {
         baseComponents.clear();
         for (const auto& baseComponent : other->getBaseComponents()) {
-            baseComponents.push_back(std::unique_ptr<AstComponentType>(baseComponent->clone()));
+            baseComponents.emplace_back(baseComponent->clone());
         }
     }
 
@@ -273,20 +225,28 @@ public:
         return toPtrVector(clauses);
     }
 
-    void addIODirective(std::unique_ptr<AstIODirective> c) {
-        ioDirectives.push_back(std::move(c));
+    void addLoad(std::unique_ptr<AstLoad> load) {
+        loads.push_back(std::move(load));
     }
 
-    void addIODirectiveChain(std::unique_ptr<AstIODirective> c) {
-        for (auto& currentName : c->getNames()) {
-            std::unique_ptr<AstIODirective> clone(c->clone());
-            clone->setName(currentName);
-            ioDirectives.push_back(std::move(clone));
-        }
+    void addPrintSize(std::unique_ptr<AstPrintSize> printSize) {
+        printSizes.push_back(std::move(printSize));
     }
 
-    std::vector<AstIODirective*> getIODirectives() const {
-        return toPtrVector(ioDirectives);
+    void addStore(std::unique_ptr<AstStore> store) {
+        stores.push_back(std::move(store));
+    }
+
+    std::vector<AstLoad*> getLoads() const {
+        return toPtrVector(loads);
+    }
+
+    std::vector<AstPrintSize*> getPrintSizes() const {
+        return toPtrVector(printSizes);
+    }
+
+    std::vector<AstStore*> getStores() const {
+        return toPtrVector(stores);
     }
 
     void addComponent(std::unique_ptr<AstComponent> c) {
@@ -315,29 +275,35 @@ public:
 
     /** Requests an independent, deep copy of this node */
     AstComponent* clone() const override {
-        AstComponent* res = new AstComponent();
+        auto* res = new AstComponent();
         res->setComponentType(std::unique_ptr<AstComponentType>(type->clone()));
 
         for (const auto& cur : baseComponents) {
-            res->baseComponents.push_back(std::unique_ptr<AstComponentType>(cur->clone()));
+            res->baseComponents.emplace_back(cur->clone());
         }
         for (const auto& cur : components) {
-            res->components.push_back(std::unique_ptr<AstComponent>(cur->clone()));
+            res->components.emplace_back(cur->clone());
         }
         for (const auto& cur : instantiations) {
-            res->instantiations.push_back(std::unique_ptr<AstComponentInit>(cur->clone()));
+            res->instantiations.emplace_back(cur->clone());
         }
         for (const auto& cur : types) {
-            res->types.push_back(std::unique_ptr<AstType>(cur->clone()));
+            res->types.emplace_back(cur->clone());
         }
         for (const auto& cur : relations) {
-            res->relations.push_back(std::unique_ptr<AstRelation>(cur->clone()));
+            res->relations.emplace_back(cur->clone());
         }
         for (const auto& cur : clauses) {
-            res->clauses.push_back(std::unique_ptr<AstClause>(cur->clone()));
+            res->clauses.emplace_back(cur->clone());
         }
-        for (const auto& cur : ioDirectives) {
-            res->ioDirectives.push_back(std::unique_ptr<AstIODirective>(cur->clone()));
+        for (const auto& cur : loads) {
+            res->loads.emplace_back(cur->clone());
+        }
+        for (const auto& cur : printSizes) {
+            res->printSizes.emplace_back(cur->clone());
+        }
+        for (const auto& cur : stores) {
+            res->stores.emplace_back(cur->clone());
         }
         for (const auto& cur : overrideRules) {
             res->overrideRules.insert(cur);
@@ -368,11 +334,15 @@ public:
         for (auto& cur : clauses) {
             cur = mapper(std::move(cur));
         }
-        for (auto& cur : ioDirectives) {
+        for (auto& cur : loads) {
             cur = mapper(std::move(cur));
         }
-
-        return;
+        for (auto& cur : printSizes) {
+            cur = mapper(std::move(cur));
+        }
+        for (auto& cur : stores) {
+            cur = mapper(std::move(cur));
+        }
     }
 
     /** Obtains a list of all embedded child nodes */
@@ -398,7 +368,13 @@ public:
         for (const auto& cur : clauses) {
             res.push_back(cur.get());
         }
-        for (const auto& cur : ioDirectives) {
+        for (const auto& cur : loads) {
+            res.push_back(cur.get());
+        }
+        for (const auto& cur : printSizes) {
+            res.push_back(cur.get());
+        }
+        for (const auto& cur : stores) {
             res.push_back(cur.get());
         }
 
@@ -432,8 +408,14 @@ public:
         if (!clauses.empty()) {
             os << join(clauses, "\n\n", print_deref<std::unique_ptr<AstClause>>()) << "\n";
         }
-        if (!ioDirectives.empty()) {
-            os << join(ioDirectives, "\n\n", print_deref<std::unique_ptr<AstIODirective>>()) << "\n";
+        if (!loads.empty()) {
+            os << join(loads, "\n\n", print_deref<std::unique_ptr<AstLoad>>()) << "\n";
+        }
+        if (!printSizes.empty()) {
+            os << join(printSizes, "\n\n", print_deref<std::unique_ptr<AstPrintSize>>()) << "\n";
+        }
+        if (!stores.empty()) {
+            os << join(stores, "\n\n", print_deref<std::unique_ptr<AstStore>>()) << "\n";
         }
 
         os << "}\n";
@@ -442,16 +424,47 @@ public:
 protected:
     /** An internal function to determine equality to another node */
     bool equal(const AstNode& node) const override {
-        assert(dynamic_cast<const AstComponent*>(&node));
-        const AstComponent& other = static_cast<const AstComponent&>(node);
+        assert(nullptr != dynamic_cast<const AstComponent*>(&node));
+        const auto& other = static_cast<const AstComponent&>(node);
 
         // compare all fields
         return type == other.type && baseComponents == other.baseComponents &&
                equal_targets(types, other.types) && equal_targets(relations, other.relations) &&
-               equal_targets(clauses, other.clauses) && equal_targets(ioDirectives, other.ioDirectives) &&
+               equal_targets(clauses, other.clauses) && equal_targets(loads, other.loads) &&
+               equal_targets(printSizes, other.printSizes) && equal_targets(stores, other.stores) &&
                equal_targets(components, other.components) &&
                equal_targets(instantiations, other.instantiations);
     }
+
+private:
+    /** The type of this component, including its name and type parameters. */
+    std::unique_ptr<AstComponentType> type;
+
+    /** A list of base types to inherit relations and clauses from. */
+    std::vector<std::unique_ptr<AstComponentType>> baseComponents;
+
+    /** A list of types declared in this component. */
+    std::vector<std::unique_ptr<AstType>> types;
+
+    /** A list of relations declared in this component. */
+    std::vector<std::unique_ptr<AstRelation>> relations;
+
+    /** A list of clauses defined in this component. */
+    std::vector<std::unique_ptr<AstClause>> clauses;
+
+    /** A list of IO directives defined in this component. */
+    std::vector<std::unique_ptr<AstLoad>> loads;
+    std::vector<std::unique_ptr<AstPrintSize>> printSizes;
+    std::vector<std::unique_ptr<AstStore>> stores;
+
+    /** A list of nested components. */
+    std::vector<std::unique_ptr<AstComponent>> components;
+
+    /** A list of nested component instantiations. */
+    std::vector<std::unique_ptr<AstComponentInit>> instantiations;
+
+    /** Set of relations that are overwritten */
+    std::set<std::string> overrideRules;
 };
 
 }  // end of namespace souffle

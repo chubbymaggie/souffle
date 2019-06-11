@@ -16,8 +16,11 @@
 
 #include "AstParserUtils.h"
 #include "AstClause.h"
-
+#include "AstNode.h"
+#include "Util.h"
 #include <memory>
+#include <ostream>
+#include <utility>
 #include <vector>
 
 namespace souffle {
@@ -85,10 +88,10 @@ std::vector<AstClause*> RuleBody::toClauseBodies() const {
             // negate if necessary
             if (lit.negated) {
                 // negate
-                if (AstAtom* atom = dynamic_cast<AstAtom*>(base)) {
+                if (auto* atom = dynamic_cast<AstAtom*>(base)) {
                     base = new AstNegation(std::unique_ptr<AstAtom>(atom));
                     base->setSrcLoc(atom->getSrcLoc());
-                } else if (AstConstraint* cstr = dynamic_cast<AstConstraint*>(base)) {
+                } else if (auto* cstr = dynamic_cast<AstConstraint*>(base)) {
                     cstr->negate();
                 }
             }
@@ -118,8 +121,7 @@ RuleBody RuleBody::atom(AstAtom* atom) {
     RuleBody body;
     body.dnf.push_back(clause());
     auto& clause = body.dnf.back();
-    clause.push_back(literal());
-    clause.back() = literal{false, std::unique_ptr<AstAtom>(atom)};
+    clause.emplace_back(false, std::unique_ptr<AstAtom>(atom));
     return body;
 }
 
@@ -127,8 +129,7 @@ RuleBody RuleBody::constraint(AstConstraint* constraint) {
     RuleBody body;
     body.dnf.push_back(clause());
     auto& clause = body.dnf.back();
-    clause.push_back(literal());
-    clause.back() = literal{false, std::unique_ptr<AstLiteral>(constraint)};
+    clause.emplace_back(false, std::unique_ptr<AstLiteral>(constraint));
     return body;
 }
 
@@ -151,11 +152,12 @@ bool RuleBody::equal(const clause& a, const clause& b) {
     if (a.size() != b.size()) {
         return false;
     }
-    for (std::size_t i = 0; i < a.size(); ++i) {
+    for (const auto& i : a) {
         bool found = false;
-        for (std::size_t j = 0; !found && j < b.size(); ++j) {
-            if (equal(a[i], b[j])) {
+        for (const auto& j : b) {
+            if (equal(i, j)) {
                 found = true;
+                break;
             }
         }
         if (!found) {
@@ -169,11 +171,12 @@ bool RuleBody::isSubsetOf(const clause& a, const clause& b) {
     if (a.size() > b.size()) {
         return false;
     }
-    for (std::size_t i = 0; i < a.size(); ++i) {
+    for (const auto& i : a) {
         bool found = false;
-        for (std::size_t j = 0; !found && j < b.size(); ++j) {
-            if (equal(a[i], b[j])) {
+        for (const auto& j : b) {
+            if (equal(i, j)) {
                 found = true;
+                break;
             }
         }
         if (!found) {
@@ -201,11 +204,11 @@ void RuleBody::insert(std::vector<clause>& cnf, clause&& cls) {
     std::vector<clause> res;
     for (auto& cur : cnf) {
         if (!isSubsetOf(cls, cur)) {
-            res.emplace_back(std::move(cur));
+            res.push_back(std::move(cur));
         }
     }
     res.swap(cnf);
-    cnf.emplace_back(std::move(cls));
+    cnf.push_back(std::move(cls));
 }
 
 }  // end of namespace souffle

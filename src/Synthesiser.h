@@ -16,27 +16,40 @@
 
 #pragma once
 
-#include "IndexSetAnalysis.h"
-#include "RamProgram.h"
-#include "RamRelation.h"
-#include "RamTranslationUnit.h"
-#include "SymbolTable.h"
-
 #include "RamStatement.h"
-
+#include "RamTypes.h"
+#include <map>
+#include <memory>
 #include <ostream>
+#include <set>
 #include <string>
-#include <vector>
 
 namespace souffle {
+
+class RamOperation;
+class RamTranslationUnit;
+class SynthesiserRelation;
+class RamRelation;
 
 /**
  * A RAM synthesiser: synthesises a C++ program from a RAM program.
  */
 class Synthesiser {
 private:
+    /** RAM translation unit */
+    RamTranslationUnit& translationUnit;
+
     /** RAM identifier to C++ identifier map */
     std::map<const std::string, const std::string> identifiers;
+
+    /** Frequency profiling of searches */
+    std::map<std::string, unsigned> idxMap;
+
+    /** Frequency profiling of non-existence checks */
+    std::map<std::string, size_t> neIdxMap;
+
+    /** Cache for generated types for relations */
+    std::set<std::string> typeCache;
 
 protected:
     /** Convert RAM identifier */
@@ -48,26 +61,40 @@ protected:
     /** Get relation name */
     const std::string getRelationName(const RamRelation& rel);
 
+    /** Get relation name */
+    const std::string getRelationName(const std::string& relName);
+
     /** Get context name */
     const std::string getOpContextName(const RamRelation& rel);
 
-    /** Get relation type */
-    std::string getRelationType(const RamRelation& rel, std::size_t arity, const IndexSet& indexes);
+    /** Get relation struct definition */
+    void generateRelationTypeStruct(std::ostream& out, std::unique_ptr<SynthesiserRelation> relationType);
 
     /* Convert SearchColums to a template index */
-    std::string toIndex(SearchColumns key);
+    std::string toIndex(SearchSignature key);
 
     /** Get referenced relations */
-    std::set<RamRelation> getReferencedRelations(const RamOperation& op);
+    std::set<const RamRelation*> getReferencedRelations(const RamOperation& op);
 
     /** Generate code */
     void emitCode(std::ostream& out, const RamStatement& stmt);
 
+    /** Lookup frequency counter */
+    unsigned lookupFreqIdx(const std::string& txt);
+
+    /** Lookup read counter */
+    size_t lookupReadIdx(const std::string& txt);
+
 public:
-    Synthesiser() = default;
+    Synthesiser(RamTranslationUnit& tUnit) : translationUnit(tUnit) {}
     virtual ~Synthesiser() = default;
 
+    /** Get translation unit */
+    RamTranslationUnit& getTranslationUnit() {
+        return translationUnit;
+    }
+
     /** Generate code */
-    void generateCode(const RamTranslationUnit& tu, std::ostream& os, const std::string& id);
+    void generateCode(std::ostream& os, const std::string& id, bool& withSharedLibrary);
 };
 }  // end of namespace souffle

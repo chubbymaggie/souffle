@@ -10,7 +10,7 @@
 .decl worried(x:symbol)
 .output worried()
 
-// The `ExtractDisconnectedLiteralsTransformer` optimising transformer
+// The `PartitionBodyLiteralsTransformer` optimising transformer
 // should change this rule to:
 //  - worried(x) :- person(x), !jailed(x), newrel().
 //  - newrel() :- thief(y), !jailed(y).

@@ -17,7 +17,6 @@
 #include "IODirectives.h"
 #include "ReadStream.h"
 #include "ReadStreamCSV.h"
-#include "SymbolMask.h"
 #include "SymbolTable.h"
 #include "WriteStream.h"
 #include "WriteStreamCSV.h"
@@ -40,19 +39,19 @@ public:
         return singleton;
     }
 
-    void registerWriteStreamFactory(std::shared_ptr<WriteStreamFactory> factory) {
+    void registerWriteStreamFactory(const std::shared_ptr<WriteStreamFactory>& factory) {
         outputFactories[factory->getName()] = factory;
     }
 
-    void registerReadStreamFactory(std::shared_ptr<ReadStreamFactory> factory) {
+    void registerReadStreamFactory(const std::shared_ptr<ReadStreamFactory>& factory) {
         inputFactories[factory->getName()] = factory;
     }
 
     /**
      * Return a new WriteStream
      */
-    std::unique_ptr<WriteStream> getWriter(const SymbolMask& symbolMask, const SymbolTable& symbolTable,
-            const IODirectives& ioDirectives, const bool provenance) const {
+    std::unique_ptr<WriteStream> getWriter(const std::vector<bool>& symbolMask,
+            const SymbolTable& symbolTable, const IODirectives& ioDirectives, const bool provenance) const {
         std::string ioType = ioDirectives.getIOType();
         if (outputFactories.count(ioType) == 0) {
             throw std::invalid_argument("Requested output type <" + ioType + "> is not supported.");
@@ -62,7 +61,7 @@ public:
     /**
      * Return a new ReadStream
      */
-    std::unique_ptr<ReadStream> getReader(const SymbolMask& symbolMask, SymbolTable& symbolTable,
+    std::unique_ptr<ReadStream> getReader(const std::vector<bool>& symbolMask, SymbolTable& symbolTable,
             const IODirectives& ioDirectives, const bool provenance) const {
         std::string ioType = ioDirectives.getIOType();
         if (inputFactories.count(ioType) == 0) {
@@ -78,6 +77,7 @@ private:
         registerReadStreamFactory(std::make_shared<ReadCinCSVFactory>());
         registerWriteStreamFactory(std::make_shared<WriteFileCSVFactory>());
         registerWriteStreamFactory(std::make_shared<WriteCoutCSVFactory>());
+        registerWriteStreamFactory(std::make_shared<WriteCoutPrintSizeFactory>());
 #ifdef USE_SQLITE
         registerReadStreamFactory(std::make_shared<ReadSQLiteFactory>());
         registerWriteStreamFactory(std::make_shared<WriteSQLiteFactory>());

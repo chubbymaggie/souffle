@@ -1,4 +1,53 @@
 souffle (@VERSION@-1) UNRELEASED; urgency=low
+  * Rewritten code generation (taipan-snake)
+  * Improved Provenance via generated data structures (taipan-snake)
+  * Profile cpu & memory usage (mmcgr)
+  * Enhanced profiler graphs (mmcgr)
+  * Productivity measures in profiler (mmcgr)
+  * General profiler enhancements (mmcgr)
+  * Added support for non-x86 platforms (mmcgr)
+  * Improve compilation speed (mmcgr)
+  * Bash autocompletion (mmcgr)
+  * Extended verbose mode (azreika/mmcgr)
+  * Reorder atoms to optimise evaluation speed (azreika)
+  * Profile-guided atom reordering (azreika)
+  * Various AST optimisations (azreika)
+  * User defined functors (b-scholz)
+  * Bug fixes
+
+ -- Kostyantyn Vorobyov <k.a.vorobyov@gmail.com>  Thu, 17 Jan 2019 09:40:23 +1100
+
+souffle (1.4.0); urgency=low
+  * improved parallel performance (HerbertJordan)
+  * improved operators hints in btree (HerbertJordan)
+  * extended progress logging in verbose mode (mmcgr)
+  * added to_string and to_number functors (b-scholz)
+  * live profiler (mmcgr)
+  * changed profile output format to json (mmcgr)
+  * profile output is less indeterminate (mmcgr)
+  * profiler tracks memory and cpu usage during execution (mmcgr)
+  * profiler tracks load/store times (mmcgr)
+  * multiple input directives (mmcgr)
+  * handle failed input less terminally (mmcgr)
+  * MPI engine (lyndonhenry)
+  * Bug fixes
+
+ -- Kostyantyn Vorobyov <k.a.vorobyov@gmail.com>  Thu, 24 May 2018 12:40:23 +1100
+
+souffle (1.3.0); urgency=low
+
+  * Added more feedback in verbose mode (azreika/mmcgr)
+  * Fixed and enhanced 64 bit domain support (mmcgr/cfallin)
+  * Improved debug report (azreika)
+  * Enhanced profiler (atom frequency, bug fixes) (mmcgr)
+  * Hashmap support (HerbertJordan,65linesofcode)
+  * Enhanced provenance tools (taipan-snake)
+  * Performance enhancements (azreika)
+  * Bug fixes (mmcgr, azreika)
+
+ -- Kostyantyn Vorobyov <k.a.vorobyov@gmail.com>  Thu, 24 May 2018 12:40:23 +1100
+
+souffle (1.2.0); urgency=low
 
   * Interactive provenance browser (taipan-snake)
   * Compilation to subprograms for separate execution (lyndonhenry)
